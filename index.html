@@ -40,7 +40,7 @@ svg{display:block}
 .iconbtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--text);flex:none}
 .iconbtn:active{background:var(--raised)}
 @media (hover:hover){.iconbtn:hover{background:var(--raised)}}
-h1{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.05;letter-spacing:-.03em;margin:26px 0 8px;text-wrap:balance}
+h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.05;letter-spacing:-.03em;margin:26px 0 8px;text-wrap:balance}
 .summary{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums;margin:0}
 .due{color:var(--gold)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 14px;margin-top:30px}
@@ -144,7 +144,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.05;lett
   padding:calc(env(safe-area-inset-top,0px) + 64px) 0 calc(env(safe-area-inset-bottom,0px) + 28px)}
 .def .dimg{width:100%}
 .def img{width:100%;height:auto;display:block;border-radius:0}
-.def .more{align-self:center;font-size:12.5px;color:var(--muted);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
+.def .more{align-self:center;margin-top:26px;font-size:12.5px;color:var(--muted);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
 .def .more b{color:var(--gold);font-weight:500}
 .frame img{transform-origin:50% 50%;will-change:transform}
 .chrome{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -155,7 +155,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.05;lett
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 10px rgba(0,0,0,.6);border-radius:10px}
 .wordbtn.empty{font-size:16px;font-weight:400;color:var(--muted)}
 .wordbtn:active{background:rgba(255,255,255,.08)}
-.mscrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:grid;place-items:center;padding-inline:20px;animation:fadein .18s ease}
+.mscrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:grid;place-items:start center;padding:calc(env(safe-area-inset-top,0px) + 84px) 20px 0;animation:fadein .18s ease}
 .mscrim.out{opacity:0;transition:opacity .18s}
 .modal{width:min(420px,100%);background:var(--surface);border-radius:18px;padding:18px 18px 16px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .mlabel{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
@@ -983,10 +983,8 @@ function renameModal(c) {
 }
 function studyEditSheet(c) {
   const L = S.level, defs = defIdsOf(c);
-  const what = L === 0 ? 'the scene' : (defs.length > 1 ? `definition ${L}` : 'the definition');
-  sheet(`<h2>Edit card</h2><p class="sub">${c.word ? esc(c.word) : 'No word yet'}</p>
-    <div class="list">
-      ${item('replace', 'Replace image', '', '', `Replaces ${what} you’re looking at`)}
+  sheet(`<div class="list">
+      ${item('replace', 'Replace image')}
       ${item('del', 'Delete card', '', 'danger')}
     </div>`, {
     replace: () => pickOne(async f => {
