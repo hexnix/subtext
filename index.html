@@ -132,26 +132,27 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
 .study{position:fixed;inset:0;z-index:40;background:#000;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;
   animation:fadein .25s ease}
 @keyframes fadein{from{opacity:0}}
+.study *{touch-action:none}
 .study img{-webkit-user-drag:none;-webkit-touch-callout:none;pointer-events:none}
 .slide{position:absolute;inset:0;will-change:transform,opacity;transition:transform .32s var(--ease),opacity .32s var(--ease)}
 .frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .frame img{width:100%;height:100%;object-fit:contain;display:block}
-.def{position:absolute;inset:0;background:var(--ink);transform:translateY(100%);transition:transform .34s var(--ease);
-  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none}
+.def{position:absolute;inset:0;background:var(--ink);transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;touch-action:none;
+  border-top:1px solid rgba(255,255,255,.07);will-change:transform}
 .def::-webkit-scrollbar{display:none}
 .def .dwrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
   padding:calc(env(safe-area-inset-top,0px) + 64px) 0 calc(env(safe-area-inset-bottom,0px) + 28px)}
 .def .dimg{width:100%}
 .def img{width:100%;height:auto;display:block;border-radius:0}
-.def .back{text-align:center;font-size:12.5px;color:var(--faint);padding-inline:16px}
+.def .more{align-self:center;font-size:12.5px;color:var(--muted);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
+.def .more b{color:var(--gold);font-weight:500}
 .frame img{transform-origin:50% 50%;will-change:transform}
 .chrome{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 22px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,0));transition:opacity .25s}
-.study.bare .chrome,.study.bare .rail{opacity:0;pointer-events:none}
+.study.bare .chrome{opacity:0;pointer-events:none}
 .pos{display:flex;align-items:center;gap:12px;padding-right:8px;font-size:13px;color:rgba(237,234,228,.82);font-variant-numeric:tabular-nums}
 .tag{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-.rail{position:absolute;left:0;right:0;top:env(safe-area-inset-top,0px);height:2px;background:rgba(255,255,255,.08);z-index:4;transition:opacity .25s}
-.rail i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s var(--ease)}
 .hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);transform:translateX(-50%);z-index:3;
   display:flex;gap:18px;white-space:nowrap;font-size:13px;color:var(--text);padding:11px 18px;border-radius:999px;
   background:rgba(22,22,24,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:opacity .4s}
@@ -193,6 +194,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
 <div id="sheet" class="sheet" role="dialog" aria-modal="true" hidden></div>
 <div id="toast" class="toast" role="status"></div>
 <input id="picker" type="file" accept="image/*" multiple hidden>
+<input id="onePicker" type="file" accept="image/*" hidden>
 <input id="zipPicker" type="file" accept=".zip,application/zip" multiple hidden>
 
 <script>
@@ -218,6 +220,7 @@ const ICON = {
   plus: svg('<path d="M12 5v14M5 12h14"/>', 26),
   check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 18),
   chev: svg('<path d="M9 6l6 6-6 6"/>', 16),
+  edit: svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>', 20),
   search: svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>')
 };
 const SORTS = { added: 'Order added', newest: 'Newest first', shuffle: 'Shuffle' };
@@ -309,8 +312,10 @@ function newDeck(name) {
 }
 async function addPair(deck, frame, def, extra = {}) {
   const thumb = await makeThumb(frame);
-  const ids = { frameId: uid(), defId: uid(), thumbId: uid() };
-  await store.put('blobs', [{ id: ids.frameId, blob: frame }, { id: ids.defId, blob: def }, { id: ids.thumbId, blob: thumb }]);
+  const defBlobs = Array.isArray(def) ? def : [def];
+  const ids = { frameId: uid(), thumbId: uid(), defIds: defBlobs.map(() => uid()) };
+  ids.defId = ids.defIds[0];
+  await store.put('blobs', [{ id: ids.frameId, blob: frame }, { id: ids.thumbId, blob: thumb }, ...defBlobs.map((b, i) => ({ id: ids.defIds[i], blob: b }))]);
   const card = Object.assign({
     id: uid(), deckId: deck.id, seq: nextSeq(deck.id), word: '',
     review: false, streak: 0, peeks: 0, seen: 0, lastSeen: 0, addedAt: Date.now()
@@ -324,7 +329,7 @@ async function addPair(deck, frame, def, extra = {}) {
 async function deleteCards(list) {
   const ids = new Set(list.map(c => c.id));
   cards = cards.filter(c => !ids.has(c.id));
-  const blobIds = list.flatMap(c => [c.frameId, c.defId, c.thumbId]);
+  const blobIds = list.flatMap(c => [c.frameId, c.thumbId, ...defIdsOf(c)]);
   blobIds.forEach(id => { if (urls.has(id)) { URL.revokeObjectURL(urls.get(id)); urls.delete(id); } thumbIds.delete(id); });
   await store.del('cards', [...ids]).catch(storageFail);
   await store.del('blobs', blobIds).catch(storageFail);
@@ -338,15 +343,18 @@ function pushLayer(onPop) {
   stack.push(onPop);
   try { history.pushState({ subtext: stack.length }, ''); } catch { histOK = false; }
 }
-function back(then) {
-  if (!stack.length) { then && then(); return; }
-  if (histOK) { afterPop = then || null; history.back(); }
-  else { stack.pop()(); then && then(); }
+function back(then, n = 1) {
+  n = Math.min(n, stack.length);
+  if (!n) { then && then(); return; }
+  if (histOK) { afterPop = then || null; history.go(-n); }
+  else { for (let k = 0; k < n; k++) stack.pop()(); then && then(); }
 }
-addEventListener('popstate', () => {
-  const f = stack.pop(); if (f) f();
+addEventListener('popstate', e => {
+  const depth = (e.state && e.state.subtext) || 0;
+  while (stack.length > depth) { const f = stack.pop(); if (f) f(); }
   const t = afterPop; afterPop = null; if (t) t();
 });
+try { if (history.state && history.state.subtext) history.replaceState(null, ''); } catch {}
 
 /* ================= toast ================= */
 let toastTimer;
@@ -583,24 +591,26 @@ async function cardSheet(c) {
     <div class="peek"><img id="pf" alt="Scene"><img id="pd" alt="Definition"></div>
     <div class="list">
       ${item('word', c.word ? 'Edit word' : 'Add word', '', '', c.word ? '' : 'So you can find it in search')}
+      ${item('edit', 'Change screenshots', defIdsOf(c).length > 1 ? `${defIdsOf(c).length} definitions` : '', '', 'Replace the scene or a definition, or add another definition')}
       ${item('flag', c.review ? 'Clear review mark' : 'Mark for review', c.review ? '<span class="dot"></span>' : '')}
       ${item('move', 'Move to another deck')}
       ${item('del', 'Delete card', '', 'danger')}
     </div>`, {
     flag: () => { c.review = !c.review; c.streak = 0; saveCards([c]); renderCards(); cardSheet(c); },
     word: () => wordSheet(c),
+    edit: () => editSheet(c),
     move: () => moveSheet([c]),
     del: () => confirmDeleteCards([c])
   });
-  const [f, d] = await Promise.all([blobURL(c.frameId), blobURL(c.defId)]);
+  const [f, d] = await Promise.all([blobURL(c.frameId), blobURL(defIdsOf(c)[0])]);
   const pf = $('#pf'), pd = $('#pd'); if (pf) pf.src = f; if (pd) pd.src = d;
 }
-function wordSheet(c) {
+function wordSheet(c, then) {
   sheet(`<h2>${c.word ? 'Edit word' : 'Add word'}</h2>
     <form><div class="field"><input id="wordName" type="text" maxlength="80" autocomplete="off" autocapitalize="none" spellcheck="false"
       enterkeyhint="done" value="${esc(c.word)}" placeholder="e.g. squaddie" aria-label="Word"></div>
     <div class="btns"><button type="submit" class="btn primary">Save</button></div></form>`, {
-    submit: f => { c.word = $('#wordName', f).value.trim(); saveCards([c]); refreshCards(); cardSheet(c); }
+    submit: f => { c.word = $('#wordName', f).value.trim(); saveCards([c]); refreshCards(); then ? then() : cardSheet(c); }
   }, sh => setTimeout(() => { const i = $('#wordName', sh); if (i) i.focus(); }, 360));
 }
 function moveSheet(list) {
@@ -630,6 +640,7 @@ function confirmDeleteCards(list) {
 
 /* ================= study ================= */
 let S = null;
+const defIdsOf = c => ((c.defIds && c.defIds.length) ? c.defIds : [c.defId]).filter(Boolean);
 function buildOrder(list, sort) {
   let base = [...list].sort((a, b) => a.seq - b.seq);
   if (sort === 'newest') base.reverse();
@@ -643,45 +654,54 @@ function openStudy(d, startId) {
   const el = document.createElement('div');
   el.className = 'study';
   el.innerHTML = `<div class="stage"></div>
-    <div class="rail"><i></i></div>
     <div class="chrome"><button class="iconbtn" data-s="close" aria-label="Close deck">${ICON.close}</button>
-      <div class="pos"><span class="tag" hidden><span class="dot"></span>Review</span><span class="count"></span></div></div>
+      <div class="pos"><span class="tag" hidden><span class="dot"></span>Review</span><span class="count"></span>
+      <button class="iconbtn" data-s="edit" aria-label="Edit this card">${ICON.edit}</button></div></div>
     ${ls.get('hinted') ? '' : `<div class="hint"><span><b>↑</b> Swipe up for meaning</span><span><b>←</b> Next</span></div>`}`;
   document.body.appendChild(el); document.body.classList.add('locked');
-  S = { deck: d, el, stage: $('.stage', el), order, i: 0, cur: null, def: false, peeked: new Set(), counted: new Set(), z: { s: 1, x: 0, y: 0 } };
+  S = { deck: d, el, stage: $('.stage', el), order, i: 0, cur: null, level: 0, view: 0, busy: false,
+    peeked: new Set(), counted: new Set(), z: { s: 1, x: 0, y: 0 } };
   showSlide(start, 'none');
   el.addEventListener('pointerdown', onDown);
   el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp);
   el.addEventListener('pointercancel', onUp);
-  el.addEventListener('click', e => { if (e.target.closest('[data-s="close"]')) back(); });
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-s]'); if (!b || !S) return;
+    if (b.dataset.s === 'close') back(null, 1 + S.level);
+    else if (b.dataset.s === 'edit') editSheet(S.order[S.i]);
+  });
   pushLayer(closeStudy);
 }
 function closeStudy() {
   if (!S) return;
-  const el = S.el; S = null; pts.clear(); g = null; pinch = null;
+  const el = S.el; S = null; pts.clear(); g = null; pinch = null; stopFling();
   el.style.transition = 'opacity .2s'; el.style.opacity = '0';
   setTimeout(() => { el.remove(); releaseFull(); }, 220);
-  if (!searchView) document.body.classList.remove('locked');
-  renderHome();
+  if (!searchView && !cardsView) document.body.classList.remove('locked');
+  renderHome(); refreshCards();
 }
 function makeSlide(c) {
+  const defs = defIdsOf(c), n = defs.length;
   const s = document.createElement('div'); s.className = 'slide';
-  s.innerHTML = `<div class="frame"><img alt="Scene"></div>
-    <div class="def"><div class="dwrap"><div class="dimg"><img alt="Definition"></div>
-      <div class="back">Swipe down for the scene · left for the next card</div></div></div>`;
+  s.innerHTML = `<div class="frame"><img alt="Scene"></div>` + defs.map((_, i) => {
+    const r = n - 1 - i;
+    return `<div class="def"><div class="dwrap"><div class="dimg"><img alt="Definition ${i + 1}"></div>
+      ${r > 0 ? `<div class="more">${plural(r, 'more definition')} <b>↑</b></div>` : ''}</div></div>`;
+  }).join('');
   blobURL(c.frameId).then(u => { $('.frame img', s).src = u; });
-  blobURL(c.defId).then(u => { $('.def img', s).src = u; });
+  const imgs = $$('.def img', s);
+  defs.forEach((id, i) => blobURL(id).then(u => { imgs[i].src = u; }));
   return s;
 }
 function preload(c) {
   if (!c) return;
-  [c.frameId, c.defId].forEach(id => blobURL(id).then(u => { if (u) { const im = new Image(); im.src = u; } }));
+  [c.frameId, ...defIdsOf(c)].forEach(id => blobURL(id).then(u => { if (u) { const im = new Image(); im.src = u; } }));
 }
 function showSlide(i, dir) {
   const old = S.cur;
   const c = S.order[i];
-  S.i = i; S.def = false; S.z = { s: 1, x: 0, y: 0 };
+  S.i = i; S.level = 0; S.view++; S.z = { s: 1, x: 0, y: 0 };
   const s = makeSlide(c);
   if (dir !== 'none') {
     s.style.transition = 'none';
@@ -696,30 +716,50 @@ function showSlide(i, dir) {
   }
   $('.count', S.el).textContent = `${i + 1} / ${S.order.length}`;
   $('.tag', S.el).hidden = !c.review;
-  $('.rail i', S.el).style.width = ((i + 1) / S.order.length * 100) + '%';
   preload(S.order[i + 1]);
+}
+/* rebuild the current card after an edit, keeping the page the person is on */
+function rebuildCurrent(c) {
+  if (!S || !S.cur || S.order[S.i].id !== c.id) return;
+  const s = makeSlide(c), panels = $$('.def', s);
+  const lvl = Math.min(S.level, panels.length);
+  panels.forEach((p, k) => { p.style.transition = 'none'; if (k < lvl) p.style.transform = 'translateY(0)'; });
+  S.cur.replaceWith(s); S.cur = s; S.level = lvl; S.z = { s: 1, x: 0, y: 0 };
 }
 function dismissHint() {
   const h = S && $('.hint', S.el);
   if (h) { h.classList.add('gone'); setTimeout(() => h.remove(), 420); ls.set('hinted', '1'); }
 }
-function showDef() {
-  if (!S || !S.cur) return;
-  if (zoomed()) resetZ(true);
-  const d = $('.def', S.cur); stopFling(); d.scrollTop = 0; d.style.transition = ''; d.style.transform = 'translateY(0)';
-  S.def = true; dismissHint();
+const panel = L => (S && S.cur && L > 0) ? ($$('.def', S.cur)[L - 1] || null) : null;
+function slideTo(el, y, ms = 300) { if (!el) return; el.style.transition = `transform ${ms}ms cubic-bezier(.2,.8,.2,1)`; el.style.transform = y; }
+function markPeek() {
   const c = S.order[S.i];
-  if (!S.peeked.has(c.id)) {
-    S.peeked.add(c.id);
-    c.review = true; c.streak = 0; c.peeks = (c.peeks || 0) + 1; c.lastSeen = Date.now();
-    saveCards([c]);
-    $('.tag', S.el).hidden = false;
-  }
+  if (S.peeked.has(c.id)) return;
+  S.peeked.add(c.id);
+  c.review = true; c.streak = 0; c.peeks = (c.peeks || 0) + 1; c.lastSeen = Date.now();
+  saveCards([c]);
+  $('.tag', S.el).hidden = false;
 }
-function hideDef() {
-  if (!S || !S.cur) return;
-  const d = $('.def', S.cur); d.style.transition = ''; d.style.transform = '';
-  S.def = false;
+/* go up one page: scene -> definition 1 -> definition 2 ... Each page is one step for the Back button. */
+function openLevel() {
+  if (!S || !S.cur || S.busy) return false;
+  const L = S.level + 1, p = panel(L);
+  if (!p) return false;
+  if (S.level === 0 && zoomed()) resetZ(true);
+  stopFling(); p.scrollTop = 0; slideTo(p, 'translateY(0)');
+  S.level = L; dismissHint();
+  if (L === 1) markPeek();
+  const view = S.view;
+  pushLayer(() => {
+    if (S && S.view === view && S.level === L) { slideTo(panel(L), 'translateY(100%)', 260); S.level = L - 1; }
+  });
+  return true;
+}
+function closeLevel() { if (S && S.level > 0) back(); }
+function leaveLevels() { // moving to another card: drop the definition pages from Back history without animating
+  if (!S || !S.level) return;
+  const k = S.level; S.level = 0; S.busy = true;
+  back(() => { if (S) S.busy = false; }, k);
 }
 function countCurrent() {
   const c = S.order[S.i];
@@ -732,15 +772,14 @@ function countCurrent() {
 function next() {
   if (!S || !S.cur) return;
   countCurrent(); dismissHint();
-  if (S.i + 1 < S.order.length) showSlide(S.i + 1, 'next');
+  if (S.i + 1 < S.order.length) { leaveLevels(); showSlide(S.i + 1, 'next'); }
   else bounce();
 }
-function prev() { if (S && S.cur && S.i > 0) showSlide(S.i - 1, 'prev'); else bounce(); }
+function prev() { if (S && S.cur && S.i > 0) { leaveLevels(); showSlide(S.i - 1, 'prev'); } else bounce(); }
 function bounce() { snapBack(); try { navigator.vibrate && navigator.vibrate(12); } catch {} }
 function snapBack() {
   if (!S || !S.cur) return;
   S.cur.style.transition = 'transform .45s cubic-bezier(.3,1.5,.5,1), opacity .3s'; S.cur.style.transform = ''; S.cur.style.opacity = '';
-  const d = $('.def', S.cur); d.style.transition = ''; d.style.transform = S.def ? 'translateY(0)' : '';
 }
 
 /* zoom (scenes only) */
@@ -759,7 +798,7 @@ function applyZ(anim) {
   img.style.transform = S.z.s <= 1.001 ? '' : `translate(${S.z.x}px, ${S.z.y}px) scale(${S.z.s})`;
 }
 function resetZ(anim) { S.z = { s: 1, x: 0, y: 0 }; applyZ(anim); }
-function zoomAround(fx, fy, from, s2) { // fx,fy: point relative to screen centre
+function zoomAround(fx, fy, from, s2) {
   const cx = (fx - from.x) / from.s, cy = (fy - from.y) / from.s;
   S.z = clampZ({ s: s2, x: fx - s2 * cx, y: fy - s2 * cy });
 }
@@ -768,12 +807,15 @@ const centre = p => ({ x: p.x - S.el.clientWidth / 2, y: p.y - S.el.clientHeight
 /* momentum scrolling for tall definitions */
 let flingRaf = 0;
 function stopFling() { if (flingRaf) cancelAnimationFrame(flingRaf); flingRaf = 0; }
-function fling(gs) {
-  const sm = gs.samples; if (sm.length < 2) return;
+function velocity(sm) {
+  if (sm.length < 2) return 0;
   const [t0, y0] = sm[0], [t1, y1] = sm[sm.length - 1];
-  let v = (y1 - y0) / Math.max(1, t1 - t0); // px per ms, positive = finger moved down
-  if (performance.now() - t1 > 80 || Math.abs(v) < 0.05) return;
-  const el = gs.dEl; let last = performance.now();
+  if (performance.now() - t1 > 90) return 0;
+  return (y1 - y0) / Math.max(1, t1 - t0); // px per ms, positive = finger moving down
+}
+function fling(el, v) {
+  if (!el || Math.abs(v) < 0.05) return;
+  let last = performance.now();
   const step = now => {
     const dt = now - last; last = now;
     el.scrollTop -= v * dt;
@@ -783,7 +825,7 @@ function fling(gs) {
   flingRaf = requestAnimationFrame(step);
 }
 
-/* gestures */
+/* gestures: every page follows the finger; release decides by distance or speed, like a photo gallery */
 const pts = new Map();
 let g = null, pinch = null, holdUntilUp = false, lastTap = null, tapTimer = null;
 function onDown(e) {
@@ -791,19 +833,20 @@ function onDown(e) {
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   try { S.el.setPointerCapture(e.pointerId); } catch {}
   if (pts.size === 2) {
-    if (g && g.axis && g.axis !== 'pan') snapBack();
+    if (g && g.axis === 'x') snapBack();
+    if (g && g.axis === 'y') { if (g.p) slideTo(g.p, 'translateY(0)', 200); if (g.nextP) slideTo(g.nextP, '', 200); }
     g = null;
-    if (S.def || !S.cur) { holdUntilUp = true; return; }
+    if (S.level > 0 || !S.cur) { holdUntilUp = true; return; }
     const [a, b] = [...pts.values()];
     pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: centre({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }), z0: { ...S.z } };
     return;
   }
   if (pts.size > 2) return;
-  holdUntilUp = false;
-  stopFling();
-  const dEl = S.def && S.cur ? $('.def', S.cur) : null;
-  g = { x: e.clientX, y: e.clientY, t: performance.now(), axis: null, dx: 0, dy: 0, pan: zoomed() && !S.def, z0: { ...S.z },
-    dEl, top0: dEl ? dEl.scrollTop : 0, canScroll: !!dEl && dEl.scrollHeight > dEl.clientHeight + 2, samples: [] };
+  holdUntilUp = false; stopFling();
+  const p = panel(S.level);
+  g = { x: e.clientX, y: e.clientY, t: performance.now(), axis: null, dx: 0, dy: 0, samples: [],
+    pan: zoomed() && S.level === 0, z0: { ...S.z }, level: S.level, p, nextP: panel(S.level + 1),
+    top0: p ? p.scrollTop : 0, max: p ? Math.max(0, p.scrollHeight - p.clientHeight) : 0, down: 0, up: 0 };
 }
 function onMove(e) {
   if (!pts.has(e.pointerId) || !S) return;
@@ -826,28 +869,42 @@ function onMove(e) {
     return;
   }
   if (!g.axis) {
-    if (Math.hypot(g.dx, g.dy) < 10) return;
+    if (Math.hypot(g.dx, g.dy) < 8) return;
     g.axis = Math.abs(g.dx) > Math.abs(g.dy) ? 'x' : 'y';
-    // a tall definition scrolls; only a pull-down from its very top closes it
-    if (g.axis === 'y' && g.canScroll && !(g.top0 <= 1 && g.dy > 0)) g.axis = 'scroll';
-    S.cur.style.transition = 'none'; $('.def', S.cur).style.transition = 'none';
-  }
-  if (g.axis === 'scroll') {
-    g.dEl.scrollTop = g.top0 - g.dy;
-    const now = performance.now(); g.samples.push([now, g.dy]);
-    while (g.samples.length > 2 && now - g.samples[0][0] > 90) g.samples.shift();
-    return;
+    S.cur.style.transition = 'none';
+    if (g.p) g.p.style.transition = 'none';
+    if (g.nextP) g.nextP.style.transition = 'none';
   }
   if (g.axis === 'x') {
     let dx = g.dx;
     if ((dx > 0 && S.i === 0) || (dx < 0 && S.i === S.order.length - 1)) dx *= 0.28;
     S.cur.style.transform = `translateX(${dx}px)`;
     S.cur.style.opacity = String(1 - Math.min(Math.abs(dx) / (innerWidth * 1.4), 0.5));
-  } else {
-    const d = $('.def', S.cur);
-    if (!S.def) d.style.transform = `translateY(calc(100% + ${Math.min(0, g.dy)}px))`;
-    else d.style.transform = `translateY(${Math.max(0, g.dy)}px)`;
+    return;
   }
+  // vertical: scroll the definition first; past its top the page is pulled down, past its bottom the next page is pulled up
+  const now = performance.now(); g.samples.push([now, g.dy]);
+  while (g.samples.length > 2 && now - g.samples[0][0] > 90) g.samples.shift();
+  if (g.p) {
+    const want = g.top0 - g.dy;
+    if (want < 0) { g.p.scrollTop = 0; g.down = -want; g.up = 0; }
+    else if (want > g.max) { g.p.scrollTop = g.max; g.up = g.nextP ? want - g.max : 0; g.down = 0; }
+    else { g.p.scrollTop = want; g.down = 0; g.up = 0; }
+    g.p.style.transform = g.down ? `translateY(${g.down}px)` : 'translateY(0)';
+  } else {
+    g.up = g.nextP ? Math.max(0, -g.dy) : 0; g.down = 0;
+  }
+  if (g.nextP) g.nextP.style.transform = g.up ? `translateY(calc(100% - ${g.up}px))` : '';
+}
+function settleY(gs, v) {
+  const H = S.el.clientHeight, far = H * 0.18;
+  if (gs.down > 0) {
+    if (gs.down > far || (v > 0.3 && gs.down > 8)) closeLevel();
+    else slideTo(gs.p, 'translateY(0)', 260);
+  } else if (gs.up > 0) {
+    if (gs.up > far || (v < -0.3 && gs.up > 8)) { if (!openLevel()) slideTo(gs.nextP, '', 260); }
+    else slideTo(gs.nextP, '', 260);
+  } else if (gs.p) fling(gs.p, v);
 }
 function onUp(e) {
   if (!pts.has(e.pointerId)) return;
@@ -859,28 +916,25 @@ function onUp(e) {
   }
   if (holdUntilUp) { if (!pts.size) holdUntilUp = false; return; }
   if (!g) return;
-  const { dx, dy, axis } = g, dt = Math.max(1, performance.now() - g.t), gs = g;
+  const gs = g, dt = Math.max(1, performance.now() - g.t);
   g = null;
   if (!S.cur) return;
-  if (!axis) { if (dt < 300 && e.type === 'pointerup') handleTap(e.clientX, e.clientY); return; }
-  if (axis === 'pan') return;
-  if (axis === 'scroll') { fling(gs); return; }
-  const TH = Math.min(70, innerWidth * 0.16), vx = dx / dt, vy = dy / dt;
-  if (axis === 'x') {
-    if (dx < -TH || vx < -0.5) next();
-    else if (dx > TH || vx > 0.5) prev();
+  if (!gs.axis) { if (dt < 300 && e.type === 'pointerup') handleTap(e.clientX, e.clientY); return; }
+  if (gs.axis === 'pan') return;
+  if (gs.axis === 'x') {
+    const TH = Math.min(70, innerWidth * 0.16), vx = gs.dx / dt;
+    if (gs.dx < -TH || vx < -0.5) next();
+    else if (gs.dx > TH || vx > 0.5) prev();
     else snapBack();
-  } else {
-    if (!S.def && (dy < -TH || vy < -0.5)) showDef();
-    else if (S.def && (dy > TH || vy > 0.5)) hideDef();
-    else snapBack();
+    return;
   }
+  settleY(gs, velocity(gs.samples));
 }
 function handleTap(x, y) {
   const now = performance.now();
   if (lastTap && now - lastTap.t < 300 && Math.hypot(x - lastTap.x, y - lastTap.y) < 40) {
     clearTimeout(tapTimer); lastTap = null;
-    if (!S.def) { if (zoomed()) resetZ(true); else { zoomAround(centre({ x, y }).x, centre({ x, y }).y, S.z, 2.5); applyZ(true); } }
+    if (S.level === 0) { if (zoomed()) resetZ(true); else { const c = centre({ x, y }); zoomAround(c.x, c.y, S.z, 2.5); applyZ(true); } }
     return;
   }
   lastTap = { t: now, x, y };
@@ -892,10 +946,56 @@ addEventListener('keydown', e => {
   const k = e.key;
   if (k === 'ArrowRight' || k === ' ') { e.preventDefault(); next(); }
   else if (k === 'ArrowLeft') { e.preventDefault(); prev(); }
-  else if (k === 'ArrowUp') { e.preventDefault(); showDef(); }
-  else if (k === 'ArrowDown') { e.preventDefault(); hideDef(); }
+  else if (k === 'ArrowUp') { e.preventDefault(); openLevel(); }
+  else if (k === 'ArrowDown') { e.preventDefault(); closeLevel(); }
   else if (k === 'Escape') back();
 });
+
+/* ================= editing a card's screenshots ================= */
+let oneCb = null;
+function pickOne(cb) { oneCb = cb; $('#onePicker').click(); }
+async function putImage(blob) { const id = uid(); await store.put('blobs', [{ id, blob }]); return id; }
+function forget(ids) {
+  ids.filter(Boolean).forEach(id => { if (urls.has(id)) { URL.revokeObjectURL(urls.get(id)); urls.delete(id); } thumbIds.delete(id); });
+  return store.del('blobs', ids.filter(Boolean)).catch(() => {});
+}
+async function afterEdit(c) { await saveCards([c]); rebuildCurrent(c); refreshCards(); renderHome(); }
+async function replaceScene(c, file) {
+  const old = [c.frameId, c.thumbId];
+  c.frameId = await putImage(file); c.thumbId = await putImage(await makeThumb(file)); thumbIds.add(c.thumbId);
+  await afterEdit(c); forget(old);
+}
+async function replaceDef(c, i, file) {
+  const ids = defIdsOf(c).slice(), old = ids[i];
+  ids[i] = await putImage(file);
+  c.defIds = ids; c.defId = ids[0];
+  await afterEdit(c); if (old) forget([old]);
+}
+async function removeDef(c, i) {
+  const ids = defIdsOf(c).slice(); if (ids.length < 2) return;
+  const [old] = ids.splice(i, 1);
+  c.defIds = ids; c.defId = ids[0];
+  await afterEdit(c); forget([old]);
+}
+function editSheet(c) {
+  const defs = defIdsOf(c), many = defs.length > 1;
+  const withI = (html, act, i) => html.replace(`data-act="${act}"`, `data-act="${act}" data-i="${i}"`);
+  sheet(`<h2>Edit card</h2><p class="sub">${c.word ? esc(c.word) : 'No word yet'}</p>
+    <div class="list">
+      ${item('word', c.word ? 'Edit word' : 'Add word')}
+      ${item('scene', 'Replace scene')}
+      ${defs.map((_, i) => withI(item('def', many ? `Replace definition ${i + 1}` : 'Replace definition'), 'def', i)).join('')}
+      ${item('adddef', 'Add another definition', '', '', 'Shown by swiping up again from the definition')}
+      ${many ? defs.map((_, i) => withI(item('rmdef', `Remove definition ${i + 1}`, '', 'danger'), 'rmdef', i)).join('') : ''}
+    </div>`, {
+    word: () => wordSheet(c, () => editSheet(c)),
+    scene: () => pickOne(async f => { await replaceScene(c, f); editSheet(c); toast('Scene replaced'); }),
+    def: b => { const i = +b.dataset.i; pickOne(async f => { await replaceDef(c, i, f); editSheet(c); toast('Definition replaced'); }); },
+    adddef: () => pickOne(async f => { await replaceDef(c, defs.length, f); editSheet(c); toast('Definition added'); }),
+    rmdef: async b => { await removeDef(c, +b.dataset.i); editSheet(c); toast('Definition removed'); }
+  });
+}
+$('#onePicker').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f && oneCb) oneCb(f).catch(storageFail); });
 
 /* ================= search ================= */
 let searchView = null;
@@ -983,11 +1083,13 @@ async function exportAll() {
   for (const d of decks) {
     const out = { id: d.id, name: d.name, sort: d.sort, createdAt: d.createdAt, cards: [] };
     for (const c of deckCards(d.id)) {
-      const [f, df] = await Promise.all([store.get('blobs', c.frameId), store.get('blobs', c.defId)]);
-      if (!f || !df) continue;
-      const fp = `images/${c.id}-scene.${EXT[f.blob.type] || 'jpg'}`, dp = `images/${c.id}-definition.${EXT[df.blob.type] || 'jpg'}`;
-      zip.file(fp, f.blob); zip.file(dp, df.blob);
-      out.cards.push({ id: c.id, word: c.word, seq: c.seq, scene: fp, definition: dp, review: c.review, streak: c.streak, peeks: c.peeks, seen: c.seen, lastSeen: c.lastSeen, addedAt: c.addedAt });
+      const f = await store.get('blobs', c.frameId);
+      const dfs = (await Promise.all(defIdsOf(c).map(id => store.get('blobs', id)))).filter(Boolean);
+      if (!f || !dfs.length) continue;
+      const fp = `images/${c.id}-scene.${EXT[f.blob.type] || 'jpg'}`;
+      const dps = dfs.map((df, i) => `images/${c.id}-definition${i ? '-' + (i + 1) : ''}.${EXT[df.blob.type] || 'jpg'}`);
+      zip.file(fp, f.blob); dfs.forEach((df, i) => zip.file(dps[i], df.blob));
+      out.cards.push({ id: c.id, word: c.word, seq: c.seq, scene: fp, definition: dps[0], definitions: dps, review: c.review, streak: c.streak, peeks: c.peeks, seen: c.seen, lastSeen: c.lastSeen, addedAt: c.addedAt });
       progress(`${++done} of ${cards.length} cards`, done / cards.length * 0.6);
     }
     man.decks.push(out);
@@ -1003,7 +1105,7 @@ async function exportAll() {
 $('#zipPicker').addEventListener('change', async e => {
   const files = [...e.target.files]; e.target.value = ''; if (!files.length) return;
   progressSheet('Importing', 'Reading the file…');
-  let added = 0, skipped = 0; const touched = new Set();
+  let added = 0, updated = 0, skipped = 0; const touched = new Set();
   try {
     const JSZip = await loadZip();
     for (let fi = 0; fi < files.length; fi++) {
@@ -1025,13 +1127,29 @@ $('#zipPicker').addEventListener('change', async e => {
         for (const mc of list) {
           n++;
           progress(`${label}${n} of ${total}`, n / total);
-          if (mc.id && cards.some(c => c.id === mc.id)) { skipped++; continue; }
-          const sp = mc.scene || mc.frame, dp = mc.definition;
-          const sf = sp && zip.file(sp), df = dp && zip.file(dp);
-          if (!sf || !df) { skipped++; continue; }
           const type = p => MIME[p.split('.').pop().toLowerCase()] || 'image/jpeg';
-          const scene = new Blob([await sf.async('arraybuffer')], { type: type(sp) });
-          const def = new Blob([await df.async('arraybuffer')], { type: type(dp) });
+          const read = async p => { const zf = p && zip.file(p); return zf ? new Blob([await zf.async('arraybuffer')], { type: type(p) }) : null; };
+          const sp = mc.scene || mc.frame, dps = (mc.definitions && mc.definitions.length) ? mc.definitions : [mc.definition];
+          const have = mc.id && cards.find(c => c.id === mc.id);
+          if (have) {
+            // already in the app: keep review progress; refresh the word, and the images when the file says so
+            let changed = false;
+            if (mc.word && mc.word !== have.word) { have.word = mc.word; changed = true; }
+            if (mc.update) {
+              const scene = await read(sp), defs = (await Promise.all(dps.map(read))).filter(Boolean);
+              if (scene && defs.length) {
+                const old = [have.frameId, have.thumbId, ...defIdsOf(have)];
+                have.frameId = await putImage(scene); have.thumbId = await putImage(await makeThumb(scene)); thumbIds.add(have.thumbId);
+                have.defIds = []; for (const b of defs) have.defIds.push(await putImage(b));
+                have.defId = have.defIds[0]; forget(old); changed = true;
+              }
+            }
+            if (changed) { await store.put('cards', [have]); updated++; touched.add(have.deckId); } else skipped++;
+            continue;
+          }
+          const scene = await read(sp), defs = (await Promise.all(dps.map(read))).filter(Boolean);
+          if (!scene || !defs.length) { skipped++; continue; }
+          const def = defs;
           const extra = { word: mc.word || '', review: !!mc.review, streak: mc.streak || 0, peeks: mc.peeks || 0, seen: mc.seen || 0, lastSeen: mc.lastSeen || 0, addedAt: mc.addedAt || Date.now() };
           if (mc.id) extra.id = mc.id;
           await addPair(d, scene, def, extra);
@@ -1040,7 +1158,7 @@ $('#zipPicker').addEventListener('change', async e => {
       }
     }
     askPersist(); renderHome(); closeSheet();
-    toast(`Imported ${plural(added, 'card')}${touched.size ? ` into ${plural(touched.size, 'deck')}` : ''}${skipped ? ` · ${skipped} already here or incomplete` : ''}`);
+    toast([added ? `Imported ${plural(added, 'card')}` : '', updated ? `Updated ${plural(updated, 'card')}` : '', skipped ? `${skipped} already up to date` : ''].filter(Boolean).join(' · ') || 'Nothing to import');
   } catch (err) {
     console.error(err);
     askPersist(); renderHome(); closeSheet();
@@ -1064,6 +1182,7 @@ async function seed() {
 (async () => {
   try { store = idbStore(await openDB()); } catch (e) { console.warn('IndexedDB unavailable, using memory', e); }
   try { decks = await store.all('decks'); cards = await store.all('cards'); } catch { decks = []; cards = []; }
+  cards.forEach(c => { if (!c.defIds || !c.defIds.length) c.defIds = [c.defId]; });
   renderHome();
   if (!decks.length) { await seed(); renderHome(); }
   if ('serviceWorker' in navigator && document.querySelector('link[rel="manifest"]')) {
