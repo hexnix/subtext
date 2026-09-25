@@ -12,20 +12,20 @@
 <title>Subtext</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap">
 <style>
 :root{
   --ink:#0E0E10; --surface:#161618; --raised:#202023; --line:#2A2A2F;
   --text:#EDEAE4; --muted:#8E8B93; --faint:#5C5A62;
   --gold:#D9B36C; --gold-soft:rgba(217,179,108,.14); --danger:#E27A64;
-  --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
-  --sans:'Geist',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --serif:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --sans:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
   --ease:cubic-bezier(.2,.8,.2,1);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--ink);color:var(--text);font:15px/1.45 var(--sans);
+body{margin:0;background:var(--ink);color:var(--text);font:14px/1.5 var(--sans);
   -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 body.locked{overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
@@ -37,11 +37,10 @@ svg{display:block}
 /* ---------- home ---------- */
 .home{max-width:820px;margin:0 auto;padding-inline:20px;padding-block:10px 56px}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
-.brand{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .iconbtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--text);flex:none}
 .iconbtn:active{background:var(--raised)}
 @media (hover:hover){.iconbtn:hover{background:var(--raised)}}
-h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-spacing:-.01em;margin:26px 0 8px;text-wrap:balance}
+h1{font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.05;letter-spacing:-.03em;margin:26px 0 8px;text-wrap:balance}
 .summary{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums;margin:0}
 .due{color:var(--gold)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 14px;margin-top:30px}
@@ -52,7 +51,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
 .cover img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .35s}
 .cover img.in{opacity:1}
 .cover::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
-.tile-name{font-family:var(--serif);font-size:22px;line-height:1.08;overflow-wrap:anywhere}
+.tile-name{font-family:var(--serif);font-size:17px;font-weight:500;line-height:1.2;letter-spacing:-.01em;overflow-wrap:anywhere}
 .tile-meta{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
 .tile .more{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
   background:rgba(14,14,16,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--text)}
@@ -69,7 +68,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
   transform:translateY(100%);transition:transform .34s var(--ease);max-height:90dvh;overflow-y:auto;overscroll-behavior:contain}
 .sheet.open{transform:none}
 .grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 16px}
-.sheet h2{font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1;margin:0 0 4px;text-wrap:balance;overflow-wrap:anywhere}
+.sheet h2{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.2;letter-spacing:-.02em;margin:0 0 4px;text-wrap:balance;overflow-wrap:anywhere}
 .sub{color:var(--muted);font-size:13.5px;margin:0;font-variant-numeric:tabular-nums}
 .note{color:var(--muted);font-size:14px;margin:12px 0 0;max-width:46ch}
 .warn{color:var(--gold);font-size:13.5px;margin:10px 0 0}
@@ -107,7 +106,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
 .page .home{padding-bottom:110px}
 .page.search .home{padding-top:6px}
-.page h1{font-size:36px;margin-top:14px}
+.page h1{font-size:30px;margin-top:14px}
 .thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:22px}
 @media (max-width:360px){.thumbs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:640px){.thumbs{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -152,7 +151,17 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
   padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 22px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,0));transition:opacity .25s}
 .study.bare .chrome{opacity:0;pointer-events:none}
 .pos{display:flex;align-items:center;gap:12px;padding-right:8px;font-size:13px;color:rgba(237,234,228,.82);font-variant-numeric:tabular-nums}
-.tag{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.wordbtn{min-width:0;max-width:68vw;padding:8px 10px;font-size:22px;font-weight:500;letter-spacing:-.02em;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 10px rgba(0,0,0,.6);border-radius:10px}
+.wordbtn.empty{font-size:16px;font-weight:400;color:var(--muted)}
+.wordbtn:active{background:rgba(255,255,255,.08)}
+.mscrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:grid;place-items:center;padding-inline:20px;animation:fadein .18s ease}
+.mscrim.out{opacity:0;transition:opacity .18s}
+.modal{width:min(420px,100%);background:var(--surface);border-radius:18px;padding:18px 18px 16px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.mlabel{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.modal input{width:100%;height:52px;border-radius:12px;background:var(--ink);border:1px solid var(--line);color:var(--text);padding:0 14px;font:inherit;font-size:18px}
+.modal input:focus{outline:none;border-color:var(--gold)}
+.modal .btns{margin-top:14px}
 .hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);transform:translateX(-50%);z-index:3;
   display:flex;gap:18px;white-space:nowrap;font-size:13px;color:var(--text);padding:11px 18px;border-radius:999px;
   background:rgba(22,22,24,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);transition:opacity .4s}
@@ -170,7 +179,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;letter-
 .res:first-child{border-top:0}
 .res img{width:76px;aspect-ratio:16/10;object-fit:cover;border-radius:6px;background:var(--surface);display:block}
 .res > span{display:flex;flex-direction:column;gap:2px;min-width:0}
-.rw{font-family:var(--serif);font-size:23px;line-height:1.1;overflow-wrap:anywhere}
+.rw{font-family:var(--serif);font-size:19px;font-weight:500;line-height:1.2;overflow-wrap:anywhere}
 .rw mark{background:none;color:var(--gold)}
 .rd{font-size:12.5px;color:var(--muted)}
 .wordin{grid-column:2 / 4;height:40px;border-radius:10px;background:var(--ink);border:1px solid var(--line);color:var(--text);
@@ -414,7 +423,7 @@ function renderHome() {
     </div>`;
   }).join('');
   el.innerHTML = `
-    <div class="bar"><span class="brand">Subtext</span>
+    <div class="bar"><span></span>
       <span class="tools"><button class="iconbtn" id="searchBtn" aria-label="Search words">${ICON.search}</button><button class="iconbtn" id="appMenu" aria-label="Backup and import">${ICON.more}</button></span></div>
     <h1>Your decks</h1>
     <p class="summary">${list.length ? `${plural(list.length, 'deck')} · ${plural(total, 'card')}${due ? ` · <span class="due">${due} to review</span>` : ''}` : 'Make a deck for each film or show you watch.'}</p>
@@ -654,8 +663,8 @@ function openStudy(d, startId) {
   const el = document.createElement('div');
   el.className = 'study';
   el.innerHTML = `<div class="stage"></div>
-    <div class="chrome"><button class="iconbtn" data-s="close" aria-label="Close deck">${ICON.close}</button>
-      <div class="pos"><span class="tag" hidden><span class="dot"></span>Review</span><span class="count"></span>
+    <div class="chrome"><button class="wordbtn" data-s="word" aria-label="Rename this word"></button>
+      <div class="pos"><span class="count"></span>
       <button class="iconbtn" data-s="edit" aria-label="Edit this card">${ICON.edit}</button></div></div>
     ${ls.get('hinted') ? '' : `<div class="hint"><span><b>↑</b> Swipe up for meaning</span><span><b>←</b> Next</span></div>`}`;
   document.body.appendChild(el); document.body.classList.add('locked');
@@ -668,8 +677,8 @@ function openStudy(d, startId) {
   el.addEventListener('pointercancel', onUp);
   el.addEventListener('click', e => {
     const b = e.target.closest('[data-s]'); if (!b || !S) return;
-    if (b.dataset.s === 'close') back(null, 1 + S.level);
-    else if (b.dataset.s === 'edit') editSheet(S.order[S.i]);
+    if (b.dataset.s === 'word') renameModal(S.order[S.i]);
+    else if (b.dataset.s === 'edit') studyEditSheet(S.order[S.i]);
   });
   pushLayer(closeStudy);
 }
@@ -715,7 +724,7 @@ function showSlide(i, dir) {
     setTimeout(() => old.remove(), 340);
   }
   $('.count', S.el).textContent = `${i + 1} / ${S.order.length}`;
-  $('.tag', S.el).hidden = !c.review;
+  showWord(c);
   preload(S.order[i + 1]);
 }
 /* rebuild the current card after an edit, keeping the page the person is on */
@@ -738,7 +747,6 @@ function markPeek() {
   S.peeked.add(c.id);
   c.review = true; c.streak = 0; c.peeks = (c.peeks || 0) + 1; c.lastSeen = Date.now();
   saveCards([c]);
-  $('.tag', S.el).hidden = false;
 }
 /* go up one page: scene -> definition 1 -> definition 2 ... Each page is one step for the Back button. */
 function openLevel() {
@@ -942,7 +950,7 @@ function handleTap(x, y) {
   tapTimer = setTimeout(() => { lastTap = null; if (S) S.el.classList.toggle('bare'); }, 300);
 }
 addEventListener('keydown', e => {
-  if (!S || sheetOpen) return;
+  if (!S || sheetOpen || modalOpen) return;
   const k = e.key;
   if (k === 'ArrowRight' || k === ' ') { e.preventDefault(); next(); }
   else if (k === 'ArrowLeft') { e.preventDefault(); prev(); }
@@ -950,6 +958,59 @@ addEventListener('keydown', e => {
   else if (k === 'ArrowDown') { e.preventDefault(); closeLevel(); }
   else if (k === 'Escape') back();
 });
+
+/* ================= study: word title, rename, edit menu ================= */
+function showWord(c) {
+  const b = S && $('.wordbtn', S.el); if (!b) return;
+  b.textContent = c.word || 'Add word'; b.classList.toggle('empty', !c.word);
+}
+let modalOpen = false;
+function renameModal(c) {
+  const wrap = document.createElement('div'); wrap.className = 'mscrim';
+  wrap.innerHTML = `<form class="modal" autocomplete="off"><label class="mlabel" for="renameInput">Word</label>
+    <input id="renameInput" type="text" maxlength="80" autocapitalize="none" spellcheck="false" enterkeyhint="done" value="${esc(c.word)}" placeholder="Type the word">
+    <div class="btns"><button type="button" class="btn" data-m="cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>`;
+  document.body.appendChild(wrap); modalOpen = true;
+  const input = $('#renameInput', wrap); input.focus(); input.select();
+  wrap.addEventListener('click', e => { if (e.target === wrap || e.target.closest('[data-m="cancel"]')) back(); });
+  $('form', wrap).addEventListener('submit', e => {
+    e.preventDefault();
+    c.word = input.value.trim(); saveCards([c]);
+    if (S && S.order[S.i].id === c.id) showWord(c);
+    refreshCards(); back();
+  });
+  pushLayer(() => { modalOpen = false; input.blur(); wrap.classList.add('out'); setTimeout(() => wrap.remove(), 180); });
+}
+function studyEditSheet(c) {
+  const L = S.level, defs = defIdsOf(c);
+  const what = L === 0 ? 'the scene' : (defs.length > 1 ? `definition ${L}` : 'the definition');
+  sheet(`<h2>Edit card</h2><p class="sub">${c.word ? esc(c.word) : 'No word yet'}</p>
+    <div class="list">
+      ${item('replace', 'Replace image', '', '', `Replaces ${what} you’re looking at`)}
+      ${item('del', 'Delete card', '', 'danger')}
+    </div>`, {
+    replace: () => pickOne(async f => {
+      if (L === 0) await replaceScene(c, f); else await replaceDef(c, L - 1, f);
+      closeSheet(); toast('Image replaced');
+    }),
+    del: () => sheet(`<h2>Delete this card?</h2><p class="note">${c.word ? `“${esc(c.word)}” and its screenshots` : 'The card and its screenshots'} will be removed from Subtext. Your gallery keeps its copies.</p>
+      <div class="btns"><button class="btn" data-act="keep">Keep it</button><button class="btn danger" data-act="yes">Delete</button></div>`, {
+      keep: () => studyEditSheet(c),
+      yes: () => closeSheet(() => deleteCurrent(c))
+    })
+  });
+}
+async function deleteCurrent(c) {
+  if (!S) return;
+  await deleteCards([c]);
+  const i = S.order.findIndex(x => x.id === c.id);
+  if (i >= 0) S.order.splice(i, 1);
+  S.peeked.delete(c.id); S.counted.delete(c.id);
+  toast('Card deleted');
+  if (!S.order.length) { back(null, 1 + S.level); return; }
+  leaveLevels();
+  showSlide(Math.min(Math.max(i, 0), S.order.length - 1), 'next');
+}
 
 /* ================= editing a card's screenshots ================= */
 let oneCb = null;
