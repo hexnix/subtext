@@ -141,7 +141,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.05;lett
   border-top:1px solid rgba(255,255,255,.07);will-change:transform}
 .def::-webkit-scrollbar{display:none}
 .def .dwrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-  padding:calc(env(safe-area-inset-top,0px) + 64px) 0 calc(env(safe-area-inset-bottom,0px) + 28px)}
+  padding:calc(env(safe-area-inset-top,0px) + 92px) 0 calc(env(safe-area-inset-bottom,0px) + 28px)}
 .def .dimg{width:100%}
 .def img{width:100%;height:auto;display:block;border-radius:0}
 .def .more{align-self:center;margin-top:26px;font-size:12.5px;color:var(--muted);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
@@ -180,14 +180,56 @@ h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.05;lett
 .peek .ptext .dtext{padding:0 16px;font-size:13px}
 .peek .ptext .t-headword{font-size:26px}
 .rd mark{background:none;color:var(--gold)}
-.chrome{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
+.chrome{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;flex-wrap:wrap;row-gap:0;align-items:center;justify-content:space-between;gap:10px;
   padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 22px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,0));transition:opacity .25s}
 .study.bare .chrome{opacity:0;pointer-events:none}
-.pos{display:flex;align-items:center;gap:12px;padding-right:8px;font-size:13px;color:rgba(237,234,228,.82);font-variant-numeric:tabular-nums}
+.pos{display:flex;align-items:center;gap:12px;padding-right:8px;flex:none;white-space:nowrap;font-size:13px;color:rgba(237,234,228,.82);font-variant-numeric:tabular-nums}
 .wordbtn{min-width:0;max-width:68vw;padding:8px 10px;font-size:22px;font-weight:500;letter-spacing:-.02em;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 10px rgba(0,0,0,.6);border-radius:10px}
 .wordbtn.empty{font-size:16px;font-weight:400;color:var(--muted)}
 .wordbtn:active{background:rgba(255,255,255,.08)}
+.head{display:flex;flex-direction:column;align-items:flex-start;min-width:0;flex:1}
+.tags{flex-basis:100%;display:flex;flex-wrap:wrap;gap:2px 16px;padding:0 10px 4px;margin-top:-4px;font-size:12.5px;line-height:1.35;color:#0086FF;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.tags:empty{display:none}
+.tags button{color:inherit;white-space:nowrap;padding:2px 0}
+/* reference page: above the scene, reached by swiping down */
+.ref{position:absolute;inset:0;background:#000;transform:translateY(-100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;touch-action:none;will-change:transform;
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.ref::-webkit-scrollbar{display:none}
+.ref .rwrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 96px) 0 calc(env(safe-area-inset-bottom,0px) + 40px)}
+.r-tr{width:100%;max-width:560px;margin:0 auto;padding:0 22px;font:16px/1.6 var(--sans);color:var(--muted);overflow-wrap:anywhere}
+.r-tr p{margin:0}
+.r-tr p + p{margin-top:14px}
+.r-tr p.hit{color:#fff}
+.r-tr mark{background:none;color:#0086FF}
+.r-vid{display:flex;flex-direction:column;gap:16px;width:100%;max-width:720px;margin:0 auto;cursor:pointer}
+.r-vid .pic{width:100%;aspect-ratio:16/9;background:var(--surface);overflow:hidden}
+.r-vid .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.r-vid .ttl{padding:0 22px;font:17px/1.45 var(--sans);font-weight:500;color:#fff;text-wrap:pretty}
+.r-art{width:100%;max-width:560px;margin:0 auto;padding:0 22px;color:#fff}
+.r-art .blk{max-width:340px}
+.r-art .blk[data-href]{cursor:pointer}
+.r-art .ttl{font:400 17px/1.3 var(--sans);letter-spacing:0;text-wrap:pretty;padding-bottom:12px;border-bottom:1.5px solid #E6E9EE}
+.r-art .site{display:inline-flex;align-items:center;gap:12px;margin-top:14px;font:400 17px/1.3 var(--sans);color:#3D9BFF}
+.r-art .blk[data-href] .site span{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.r-art .site svg{width:19px;height:19px;flex:none}
+/* search: tag suggestions and pinned tags */
+.pins{display:flex;gap:6px;flex:0 1 auto;min-width:0;max-width:72%;overflow-x:auto;scrollbar-width:none}
+.pins::-webkit-scrollbar{display:none}
+.pin{display:inline-flex;align-items:center;gap:6px;height:34px;flex:none;max-width:210px;padding:0 8px 0 12px;border-radius:999px;background:rgba(0,134,255,.16);color:#4DA8FF;font-size:13.5px;white-space:nowrap}
+.pin b{font-weight:400;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pin span{font-size:16px;line-height:1;opacity:.8}
+.qwrap input{min-width:64px}
+.qwrap{flex:1;min-width:0;display:flex;align-items:center;gap:6px;height:48px;border-radius:14px;background:var(--surface);border:1px solid var(--line);padding:0 6px}
+.qwrap:focus-within{border-color:var(--gold)}
+.qwrap input{flex:1;min-width:0;height:100%;background:none;border:0;color:var(--text);padding:0 10px;font:inherit;font-size:17px;-webkit-appearance:none;appearance:none}
+.qwrap input:focus{outline:none}
+.sugg{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 14px}
+.sugg button{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(0,134,255,.55);color:#4DA8FF;font-size:13.5px}
+.sugg button i{font-style:normal;color:var(--muted);font-size:12px}
+.sugg button mark{background:none;color:#fff}
 .mscrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:grid;place-items:start center;padding:calc(env(safe-area-inset-top,0px) + 84px) 20px 0;animation:fadein .18s ease}
 .mscrim.out{opacity:0;transition:opacity .18s}
 .modal{width:min(420px,100%);background:var(--surface);border-radius:18px;padding:18px 18px 16px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
@@ -204,9 +246,6 @@ h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.05;lett
 /* ---------- search ---------- */
 .tools{display:flex;gap:2px;margin-right:-8px}
 .searchbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:6px;padding:8px 16px 8px 8px;background:var(--ink)}
-.searchbar input{flex:1;min-width:0;height:48px;border-radius:14px;background:var(--surface);border:1px solid var(--line);
-  color:var(--text);padding:0 16px;font:inherit;font-size:17px;-webkit-appearance:none;appearance:none}
-.searchbar input:focus{outline:none;border-color:var(--gold)}
 .results{display:flex;flex-direction:column}
 .res{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center;width:100%;padding:10px 0;border-top:1px solid var(--line)}
 .res:first-child{border-top:0}
@@ -371,7 +410,7 @@ async function addPair(deck, frame, def, extra = {}) {
 async function deleteCards(list) {
   const ids = new Set(list.map(c => c.id));
   cards = cards.filter(c => !ids.has(c.id));
-  const blobIds = list.flatMap(c => [c.frameId, c.thumbId, ...defIdsOf(c)]).filter(Boolean);
+  const blobIds = list.flatMap(c => [c.frameId, c.thumbId, ...defIdsOf(c), c.ref && c.ref.thumbId]).filter(Boolean);
   blobIds.forEach(id => { if (urls.has(id)) { URL.revokeObjectURL(urls.get(id)); urls.delete(id); } thumbIds.delete(id); });
   await store.del('cards', [...ids]).catch(storageFail);
   await store.del('blobs', blobIds).catch(storageFail);
@@ -709,6 +748,33 @@ function alignText(c) {
   while (t.length < n) t.push(null);
   c.defText = t;
 }
+/* tags (shown under the word) and the reference page (transcript, video or article) */
+const tagsOf = c => Array.isArray(c.tags) ? c.tags.filter(t => typeof t === 'string' && t.trim()) : [];
+const hasRef = c => !!(c.ref && ((c.ref.kind === 'transcript' && Array.isArray(c.ref.lines) && c.ref.lines.length) || (c.ref.kind === 'video' && c.ref.vid) || (c.ref.kind === 'article' && c.ref.title)));
+const OUT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4h7v7"/><path d="M20 4l-9 9"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></svg>';
+const hl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<mark>$1</mark>');
+function refLink(r) {
+  if (r.kind === 'video') return `https://www.youtube.com/watch?v=${encodeURIComponent(r.vid)}${r.t > 0 ? `&t=${Math.floor(r.t)}s` : ''}`;
+  if (r.kind === 'article' && /^https?:\/\//.test(r.url || '')) return r.url;
+  return '';
+}
+function refHTML(c) {
+  const r = c.ref, link = refLink(r);
+  if (r.kind === 'transcript') return `<div class="r-tr">${r.lines.map(l => `<p${l.hit ? ' class="hit"' : ''}>${hl(l.text || '').replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
+  if (r.kind === 'video') return `<div class="r-vid" data-href="${esc(link)}"><div class="pic"><img alt=""></div>${r.title ? `<div class="ttl">${esc(r.title)}</div>` : ''}</div>`;
+  return `<div class="r-art"><div class="blk"${link ? ` data-href="${esc(link)}"` : ''}><div class="ttl">${esc(r.title)}</div>${r.site ? `<div class="site"><span>${esc(r.site)}</span>${link ? OUT_ICON : ''}</div>` : ''}</div></div>`;
+}
+function cleanRef(r) { // from an import file
+  if (!r || typeof r !== 'object') return null;
+  const kind = r.kind || r.type;
+  if (kind === 'transcript' && Array.isArray(r.lines)) {
+    const lines = r.lines.map(l => typeof l === 'string' ? { text: l } : { text: String(l.text || ''), hit: !!l.hit }).filter(l => l.text.trim());
+    return lines.length ? { kind, lines } : null;
+  }
+  if (kind === 'video' && r.vid) return { kind, vid: String(r.vid), t: Math.max(0, +r.t || 0), title: String(r.title || '') };
+  if (kind === 'article' && r.title) return { kind, title: String(r.title), site: String(r.site || ''), url: String(r.url || '') };
+  return null;
+}
 function buildOrder(list, sort) {
   let base = [...list].sort((a, b) => a.seq - b.seq);
   if (sort === 'newest') base.reverse();
@@ -722,9 +788,9 @@ function openStudy(d, startId) {
   const el = document.createElement('div');
   el.className = 'study';
   el.innerHTML = `<div class="stage"></div>
-    <div class="chrome"><button class="wordbtn" data-s="word" aria-label="Rename this word"></button>
+    <div class="chrome"><div class="head"><button class="wordbtn" data-s="word" aria-label="Rename this word"></button></div>
       <div class="pos"><span class="count"></span>
-      <button class="iconbtn" data-s="edit" aria-label="Edit this card">${ICON.edit}</button></div></div>
+      <button class="iconbtn" data-s="edit" aria-label="Edit this card">${ICON.edit}</button></div><div class="tags"></div></div>
     ${ls.get('hinted') ? '' : `<div class="hint"><span><b>↑</b> Swipe up for meaning</span><span><b>←</b> Next</span></div>`}`;
   document.body.appendChild(el); document.body.classList.add('locked');
   S = { deck: d, el, stage: $('.stage', el), order, i: 0, cur: null, level: 0, view: 0, busy: false,
@@ -738,6 +804,7 @@ function openStudy(d, startId) {
     const b = e.target.closest('[data-s]'); if (!b || !S) return;
     if (b.dataset.s === 'word') renameModal(S.order[S.i]);
     else if (b.dataset.s === 'edit') studyEditSheet(S.order[S.i]);
+    else if (b.dataset.s === 'tag') { const t = b.dataset.tag; S.busy = true; back(() => openSearch([t]), 1 + Math.abs(S.level)); }
   });
   pushLayer(closeStudy);
 }
@@ -756,8 +823,10 @@ function makeSlide(c) {
     const r = n - 1 - i, t = textOf(c, i);
     return `<div class="def${t ? ' txt' : ''}"><div class="dwrap">${t ? textHTML(t) : `<div class="dimg"><img alt="Definition ${i + 1}" data-i="${i}"></div>`}
       ${r > 0 ? `<div class="more">${plural(r, 'more definition')} <b>↑</b></div>` : ''}</div></div>`;
-  }).join('');
+  }).join('') + (hasRef(c) ? `<div class="ref"><div class="rwrap">${refHTML(c)}</div></div>` : '');
   blobURL(c.frameId).then(u => { $('.frame img', s).src = u; });
+  const rimg = $('.ref img', s);
+  if (rimg) blobURL(c.ref.thumbId).then(u => { rimg.src = u || `https://i.ytimg.com/vi/${encodeURIComponent(c.ref.vid)}/hqdefault.jpg`; });
   $$('.def img[data-i]', s).forEach(img => blobURL(defs[+img.dataset.i]).then(u => { img.src = u; }));
   return s;
 }
@@ -788,9 +857,10 @@ function showSlide(i, dir) {
 /* rebuild the current card after an edit, keeping the page the person is on */
 function rebuildCurrent(c) {
   if (!S || !S.cur || S.order[S.i].id !== c.id) return;
-  const s = makeSlide(c), panels = $$('.def', s);
-  const lvl = Math.min(S.level, panels.length);
+  const s = makeSlide(c), panels = $$('.def', s), rp = $('.ref', s);
+  const lvl = S.level === -1 ? (rp ? -1 : 0) : Math.min(S.level, panels.length);
   panels.forEach((p, k) => { p.style.transition = 'none'; if (k < lvl) p.style.transform = 'translateY(0)'; });
+  if (rp && lvl === -1) { rp.style.transition = 'none'; rp.style.transform = 'translateY(0)'; }
   S.cur.replaceWith(s); S.cur = s; S.level = lvl; S.z = { s: 1, x: 0, y: 0 };
 }
 function dismissHint() {
@@ -821,10 +891,25 @@ function openLevel() {
   });
   return true;
 }
-function closeLevel() { if (S && S.level > 0) back(); }
+/* go down from the scene to its reference page (level -1) */
+const refPanel = () => (S && S.cur && $('.ref', S.cur)) || null;
+function openRef() {
+  if (!S || !S.cur || S.busy || S.level !== 0) return false;
+  const p = refPanel();
+  if (!p) { bounce(); return false; }
+  if (zoomed()) resetZ(true);
+  stopFling(); p.scrollTop = 0; slideTo(p, 'translateY(0)');
+  S.level = -1; dismissHint();
+  const view = S.view;
+  pushLayer(() => {
+    if (S && S.view === view && S.level === -1) { slideTo(refPanel(), 'translateY(-100%)', 260); S.level = 0; }
+  });
+  return true;
+}
+function closeLevel() { if (S && S.level !== 0) back(); }
 function leaveLevels() { // moving to another card: drop the definition pages from Back history without animating
   if (!S || !S.level) return;
-  const k = S.level; S.level = 0; S.busy = true;
+  const k = Math.abs(S.level); S.level = 0; S.busy = true;
   back(() => { if (S) S.busy = false; }, k);
 }
 function countCurrent() {
@@ -902,16 +987,17 @@ function onDown(e) {
     if (g && g.axis === 'x') snapBack();
     if (g && g.axis === 'y') { if (g.p) slideTo(g.p, 'translateY(0)', 200); if (g.nextP) slideTo(g.nextP, '', 200); }
     g = null;
-    if (S.level > 0 || !S.cur) { holdUntilUp = true; return; }
+    if (S.level !== 0 || !S.cur) { holdUntilUp = true; return; }
     const [a, b] = [...pts.values()];
     pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: centre({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }), z0: { ...S.z } };
     return;
   }
   if (pts.size > 2) return;
   holdUntilUp = false; stopFling();
-  const p = panel(S.level);
+  const p = S.level === -1 ? refPanel() : panel(S.level);
   g = { x: e.clientX, y: e.clientY, t: performance.now(), axis: null, dx: 0, dy: 0, samples: [],
-    pan: zoomed() && S.level === 0, z0: { ...S.z }, level: S.level, p, nextP: panel(S.level + 1),
+    pan: zoomed() && S.level === 0, z0: { ...S.z }, level: S.level, p, nextP: S.level >= 0 ? panel(S.level + 1) : null,
+    ref: S.level === 0 ? refPanel() : null,
     top0: p ? p.scrollTop : 0, max: p ? Math.max(0, p.scrollHeight - p.clientHeight) : 0, down: 0, up: 0 };
 }
 function onMove(e) {
@@ -940,6 +1026,7 @@ function onMove(e) {
     S.cur.style.transition = 'none';
     if (g.p) g.p.style.transition = 'none';
     if (g.nextP) g.nextP.style.transition = 'none';
+    if (g.ref) g.ref.style.transition = 'none';
   }
   if (g.axis === 'x') {
     let dx = g.dx;
@@ -951,6 +1038,21 @@ function onMove(e) {
   // vertical: scroll the definition first; past its top the page is pulled down, past its bottom the next page is pulled up
   const now = performance.now(); g.samples.push([now, g.dy]);
   while (g.samples.length > 2 && now - g.samples[0][0] > 90) g.samples.shift();
+  if (g.level === -1) { // reference page: scroll it; past its bottom it is pushed back up
+    const want = g.top0 - g.dy;
+    if (!g.p) return;
+    if (want > g.max) { g.p.scrollTop = g.max; g.up = want - g.max; } else { g.p.scrollTop = Math.max(0, want); g.up = 0; }
+    g.p.style.transform = g.up ? `translateY(${-g.up}px)` : 'translateY(0)';
+    return;
+  }
+  if (g.level === 0 && !g.p && g.dy > 0) { // scene pulled down: bring the reference page down, or stretch a little if there is none
+    g.down = g.dy; g.up = 0;
+    if (g.ref) g.ref.style.transform = `translateY(calc(-100% + ${g.down}px))`;
+    else S.cur.style.transform = `translateY(${g.dy * 0.22}px)`;
+    if (g.nextP) g.nextP.style.transform = '';
+    return;
+  }
+  if (g.level === 0 && !g.p) { g.down = 0; if (g.ref) g.ref.style.transform = ''; else S.cur.style.transform = ''; }
   if (g.p) {
     const want = g.top0 - g.dy;
     if (want < 0) { g.p.scrollTop = 0; g.down = -want; g.up = 0; }
@@ -964,6 +1066,17 @@ function onMove(e) {
 }
 function settleY(gs, v) {
   const H = S.el.clientHeight, far = H * 0.18;
+  if (gs.level === -1) {
+    if (gs.up > 0) { if (gs.up > far || (v < -0.3 && gs.up > 8)) closeLevel(); else slideTo(gs.p, 'translateY(0)', 260); }
+    else if (gs.p) fling(gs.p, v);
+    return;
+  }
+  if (gs.level === 0 && !gs.p && gs.down > 0) {
+    if (!gs.ref) { bounce(); return; }
+    if (gs.down > far || (v > 0.3 && gs.down > 8)) { if (!openRef()) slideTo(gs.ref, '', 260); }
+    else slideTo(gs.ref, '', 260);
+    return;
+  }
   if (gs.down > 0) {
     if (gs.down > far || (v > 0.3 && gs.down > 8)) closeLevel();
     else slideTo(gs.p, 'translateY(0)', 260);
@@ -998,6 +1111,10 @@ function onUp(e) {
 }
 function handleTap(x, y) {
   const now = performance.now();
+  if (S.level === -1) { // the video or article on the reference page opens outside the app
+    const a = document.elementFromPoint(x, y), h = a && a.closest('[data-href]');
+    if (h && h.dataset.href) { try { window.open(h.dataset.href, '_blank', 'noopener'); } catch {} return; }
+  }
   if (lastTap && now - lastTap.t < 300 && Math.hypot(x - lastTap.x, y - lastTap.y) < 40) {
     clearTimeout(tapTimer); lastTap = null;
     if (S.level === 0) { if (zoomed()) resetZ(true); else { const c = centre({ x, y }); zoomAround(c.x, c.y, S.z, 2.5); applyZ(true); } }
@@ -1012,8 +1129,8 @@ addEventListener('keydown', e => {
   const k = e.key;
   if (k === 'ArrowRight' || k === ' ') { e.preventDefault(); next(); }
   else if (k === 'ArrowLeft') { e.preventDefault(); prev(); }
-  else if (k === 'ArrowUp') { e.preventDefault(); openLevel(); }
-  else if (k === 'ArrowDown') { e.preventDefault(); closeLevel(); }
+  else if (k === 'ArrowUp') { e.preventDefault(); if (S.level === -1) closeLevel(); else openLevel(); }
+  else if (k === 'ArrowDown') { e.preventDefault(); if (S.level === 0) openRef(); else if (S.level > 0) closeLevel(); }
   else if (k === 'Escape') back();
 });
 
@@ -1021,6 +1138,7 @@ addEventListener('keydown', e => {
 function showWord(c) {
   const b = S && $('.wordbtn', S.el); if (!b) return;
   b.textContent = c.word || 'Add word'; b.classList.toggle('empty', !c.word);
+  $('.tags', S.el).innerHTML = tagsOf(c).map(t => `<button data-s="tag" data-tag="${esc(t)}" aria-label="Show cards tagged ${esc(t)}">${esc(t)}</button>`).join('');
 }
 let modalOpen = false;
 function renameModal(c) {
@@ -1042,7 +1160,7 @@ function renameModal(c) {
 function studyEditSheet(c) {
   const L = S.level, defs = defIdsOf(c);
   sheet(`<div class="list">
-      ${item('replace', 'Replace image')}
+      ${L >= 0 ? item('replace', 'Replace image') : ''}
       ${item('del', 'Delete card', '', 'danger')}
     </div>`, {
     replace: () => pickOne(async f => {
@@ -1063,7 +1181,7 @@ async function deleteCurrent(c) {
   if (i >= 0) S.order.splice(i, 1);
   S.peeked.delete(c.id); S.counted.delete(c.id);
   toast('Card deleted');
-  if (!S.order.length) { back(null, 1 + S.level); return; }
+  if (!S.order.length) { back(null, 1 + Math.abs(S.level)); return; }
   leaveLevels();
   showSlide(Math.min(Math.max(i, 0), S.order.length - 1), 'next');
 }
@@ -1129,17 +1247,17 @@ function cardPlain(c) { // definition text of a card, for search
   if (key) plainCache.set(c, { key, v });
   return v;
 }
-function findWords(q) {
+function findWords(q, pool = cards) {
   const n = norm(q); if (!n) return [];
   const out = [], seen = new Set();
-  for (const c of cards) {
+  for (const c of pool) {
     if (!c.word) continue;
     const w = norm(c.word), i = w.indexOf(n);
     if (i < 0) continue;
     out.push({ c, i, w, rank: i === 0 ? 0 : (/[\s\-']/.test(w[i - 1]) ? 1 : 2) }); seen.add(c.id);
   }
   // then cards whose definition text mentions it
-  if (n.length >= 2) for (const c of cards) {
+  if (n.length >= 2) for (const c of pool) {
     if (seen.has(c.id)) continue;
     const p = cardPlain(c); if (!p) continue;
     const at = norm(p).indexOf(n);
@@ -1154,43 +1272,79 @@ function snippet(p, q) {
   const a = Math.max(0, k - 28), b = Math.min(p.length, k + q.trim().length + 40);
   return (a ? '…' : '') + esc(p.slice(a, k)) + '<mark>' + esc(p.slice(k, k + q.trim().length)) + '</mark>' + esc(p.slice(k + q.trim().length, b)) + (b < p.length ? '…' : '');
 }
-function openSearch() {
+function allTags(pool) { // distinct tags (any case) with how many cards in pool carry them
+  const m = new Map();
+  for (const c of pool) for (const t of new Set(tagsOf(c).map(x => x.trim()))) {
+    const k = norm(t), e = m.get(k); if (e) e.n++; else m.set(k, { t, k, n: 1 });
+  }
+  return [...m.values()];
+}
+const hasTags = (c, pins) => { const mine = tagsOf(c).map(norm); return pins.every(p => mine.includes(norm(p))); };
+function openSearch(pins) {
+  if (searchView) { if (pins) { searchView.pins = [...pins]; searchView.draw(); } return; }
   const el = document.createElement('div'); el.className = 'page search';
   el.innerHTML = `<div class="searchbar"><button class="iconbtn" data-q="back" aria-label="Back">${ICON.back}</button>
-      <input id="q" type="search" placeholder="Search words and meanings" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search your words"></div>
-    <div class="home"><div class="results" id="results"></div></div>`;
+      <div class="qwrap"><div class="pins"></div><input id="q" type="search" placeholder="Search words and meanings" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search your words"></div></div>
+    <div class="home"><div class="sugg" id="sugg" hidden></div><div class="results" id="results"></div></div>`;
   document.body.appendChild(el); document.body.classList.add('locked');
-  searchView = { el };
   const input = $('#q', el);
+  searchView = { el, pins: pins ? [...pins] : [] };
+  searchView.draw = () => {
+    const P = searchView.pins;
+    $('.pins', el).innerHTML = P.map((t, k) => `<button class="pin" data-unpin="${k}" aria-label="Remove tag ${esc(t)}"><b>${esc(t)}</b><span aria-hidden="true">×</span></button>`).join('');
+    input.placeholder = P.length ? 'Search' : 'Search words and meanings';
+    const pb = $('.pins', el); pb.scrollLeft = pb.scrollWidth;
+    renderResults(input.value);
+  };
   input.addEventListener('input', () => renderResults(input.value));
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') { const f = $('.res', el); if (f) f.click(); } });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { const f = $('#sugg button', el) || $('.res', el); if (f) f.click(); }
+    else if (e.key === 'Backspace' && !input.value && searchView.pins.length) { searchView.pins.pop(); searchView.draw(); }
+  });
   el.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.q === 'back') back();
+    else if (b.dataset.pin != null) { searchView.pins.push(b.dataset.pin); input.value = ''; searchView.draw(); input.focus(); }
+    else if (b.dataset.unpin != null) { searchView.pins.splice(+b.dataset.unpin, 1); searchView.draw(); }
     else if (b.dataset.card) { const c = cards.find(x => x.id === b.dataset.card); if (c) { input.blur(); openStudy(decks.find(d => d.id === c.deckId), c.id); } }
   });
   pushLayer(() => { el.remove(); searchView = null; if (!S) document.body.classList.remove('locked'); });
-  renderResults('');
-  input.focus();
+  searchView.draw();
+  if (!searchView.pins.length) input.focus();
 }
 function renderResults(q) {
-  const box = $('#results'); if (!box) return;
-  const named = cards.filter(c => c.word).length, unnamed = cards.length - named;
-  if (!norm(q)) {
+  const box = $('#results'), sg = $('#sugg'); if (!box || !searchView) return;
+  const P = searchView.pins, pool = P.length ? cards.filter(c => hasTags(c, P)) : cards, n = norm(q);
+  // tags that match what is typed, shown above the results
+  const tg = n ? allTags(pool).filter(x => !P.some(p => norm(p) === x.k) && x.k.includes(n))
+    .sort((a, b) => (b.k.startsWith(n) - a.k.startsWith(n)) || b.n - a.n || a.k.localeCompare(b.k)).slice(0, 8) : [];
+  sg.hidden = !tg.length;
+  sg.innerHTML = tg.map(x => { const i = x.k.indexOf(n);
+    return `<button data-pin="${esc(x.t)}">${esc(x.t.slice(0, i))}<mark>${esc(x.t.slice(i, i + n.length))}</mark>${esc(x.t.slice(i + n.length))}<i>${x.n}</i></button>`; }).join('');
+  const row = (c, title, snip) => { const d = decks.find(x => x.id === c.deckId);
+    return `<button class="res" data-card="${c.id}"><img alt="" data-blob="${c.thumbId}">
+      <span><span class="rw">${title}</span>
+      <span class="rd">${esc(d ? d.name : '')}${c.review ? ' · <span class="due">review</span>' : ''}</span>${snip ? `<span class="rd">${snip}</span>` : ''}</span></button>`; };
+  const pics = () => $$('img[data-blob]', box).forEach(img => { thumbIds.add(img.dataset.blob); blobURL(img.dataset.blob).then(u => { if (u) img.src = u; }); });
+  if (!n) {
+    if (P.length) {
+      const list = [...pool].sort((a, b) => norm(a.word || '~').localeCompare(norm(b.word || '~')));
+      box.innerHTML = list.length ? `<p class="note">${plural(list.length, 'card')}</p><div class="results">${list.map(c => row(c, c.word ? esc(c.word) : '<span class="rd">No word yet</span>')).join('')}</div>`
+        : `<p class="note">No card has all of these tags.</p>`;
+      pics(); return;
+    }
+    const named = cards.filter(c => c.word).length, unnamed = cards.length - named;
     box.innerHTML = `<p class="note">${plural(named, 'word')} saved.${unnamed ? ` ${plural(unnamed, 'card')} ${unnamed === 1 ? 'has' : 'have'} no word yet, so search can’t find ${unnamed === 1 ? 'it' : 'them'}. Add words from a deck’s Browse cards.` : ''}</p>`;
     return;
   }
-  const hits = findWords(q);
-  if (!hits.length) { box.innerHTML = `<p class="note">Nothing matches “${esc(q.trim())}” in your words or definitions.</p>`; return; }
-  const n = norm(q).length;
+  const hits = findWords(q, pool);
+  if (!hits.length) { box.innerHTML = tg.length ? '' : `<p class="note">Nothing matches “${esc(q.trim())}”${P.length ? ' in these cards' : ' in your words or definitions'}.</p>`; return; }
+  const k = n.length;
   box.innerHTML = hits.map(({ c, i, snip }) => {
-    const w = c.word || '', d = decks.find(x => x.id === c.deckId);
-    const title = i < 0 ? (w ? esc(w) : '<span class="rd">No word yet</span>') : `${esc(w.slice(0, i))}<mark>${esc(w.slice(i, i + n))}</mark>${esc(w.slice(i + n))}`;
-    return `<button class="res" data-card="${c.id}"><img alt="" data-blob="${c.thumbId}">
-      <span><span class="rw">${title}</span>
-      <span class="rd">${esc(d ? d.name : '')}${c.review ? ' · <span class="due">review</span>' : ''}</span>${snip ? `<span class="rd">${snip}</span>` : ''}</span></button>`;
+    const w = c.word || '';
+    return row(c, i < 0 ? (w ? esc(w) : '<span class="rd">No word yet</span>') : `${esc(w.slice(0, i))}<mark>${esc(w.slice(i, i + k))}</mark>${esc(w.slice(i + k))}`, snip);
   }).join('');
-  $$('img[data-blob]', box).forEach(img => { thumbIds.add(img.dataset.blob); blobURL(img.dataset.blob).then(u => { if (u) img.src = u; }); });
+  pics();
 }
 
 /* ================= backup & import ================= */
@@ -1260,6 +1414,12 @@ async function exportAll() {
       zip.file(fp, f.blob); dfs.forEach((df, i) => { if (df) zip.file(dps[i], df.blob); });
       const mc = { id: c.id, word: c.word, seq: c.seq, scene: fp, definition: dps[0], definitions: dps, review: c.review, streak: c.streak, peeks: c.peeks, seen: c.seen, lastSeen: c.lastSeen, addedAt: c.addedAt };
       if (texts.some(Boolean)) mc.definitionText = texts;
+      if (tagsOf(c).length) mc.tags = tagsOf(c);
+      if (hasRef(c)) {
+        const { thumbId, ...r } = c.ref; mc.reference = r;
+        const th = thumbId && await store.get('blobs', thumbId).catch(() => null);
+        if (th) { mc.reference.thumb = `images/${c.id}-reference.${EXT[th.blob.type] || 'jpg'}`; zip.file(mc.reference.thumb, th.blob); }
+      }
       out.cards.push(mc);
       progress(`${++done} of ${cards.length} cards`, done / cards.length * 0.6);
     }
@@ -1341,6 +1501,20 @@ $('#zipPicker').addEventListener('change', async e => {
                 if (JSON.stringify(t) !== JSON.stringify(have.defText[i])) { have.defText[i] = t; changed = true; }
               });
             }
+            if (Array.isArray(mc.tags)) {
+              const t = mc.tags.map(x => String(x).trim()).filter(Boolean);
+              if (JSON.stringify(t) !== JSON.stringify(tagsOf(have))) { have.tags = t; changed = true; }
+            }
+            if ('reference' in mc) {
+              const r = cleanRef(mc.reference), th = r && r.kind === 'video' ? await read(mc.reference.thumb) : null;
+              const { thumbId: oldThumb, ...cur } = have.ref || {};
+              if (JSON.stringify(r) !== JSON.stringify(have.ref ? cur : null) || (th && !oldThumb)) {
+                if (r && th) r.thumbId = await putImage(th);
+                else if (r && r.kind === 'video' && oldThumb && cur.vid === r.vid) r.thumbId = oldThumb;
+                if (oldThumb && (!r || r.thumbId !== oldThumb)) forget([oldThumb]);
+                have.ref = r; changed = true;
+              }
+            }
             if (changed) { await store.put('cards', [have]); updated++; touched.add(have.deckId); } else skipped++;
             continue;
           }
@@ -1351,6 +1525,9 @@ $('#zipPicker').addEventListener('change', async e => {
           const extra = { word: mc.word || '', review: !!mc.review, streak: mc.streak || 0, peeks: mc.peeks || 0, seen: mc.seen || 0, lastSeen: mc.lastSeen || 0, addedAt: mc.addedAt || Date.now(),
             defText: keep.map(i => texts[i] || null) };
           if (mc.id) extra.id = mc.id;
+          if (Array.isArray(mc.tags)) extra.tags = mc.tags.map(x => String(x).trim()).filter(Boolean);
+          const rf = cleanRef(mc.reference);
+          if (rf) { const th = rf.kind === 'video' ? await read(mc.reference.thumb) : null; if (th) rf.thumbId = await putImage(th); extra.ref = rf; }
           const dd = await deckFor();
           await addPair(dd, scene, keep.map(i => imgs[i]), extra);
           added++; touched.add(dd.id);
