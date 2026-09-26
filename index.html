@@ -147,6 +147,39 @@ h1{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.05;lett
 .def .more{align-self:center;margin-top:26px;font-size:12.5px;color:var(--muted);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
 .def .more b{color:var(--gold);font-weight:500}
 .frame img{transform-origin:50% 50%;will-change:transform}
+/* definitions as text: white and blue on black */
+.def.txt{background:#000}
+.dtext{width:100%;max-width:560px;padding:0 22px;font:15px/1.6 var(--sans);color:#fff;overflow-wrap:anywhere;letter-spacing:0}
+.dtext > * + *{margin-top:14px}
+.dtext strong{font-weight:600}
+.dtext .t-tag{font-size:11px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dtext .t-headword{font-size:34px;line-height:1.1;color:#0086FF;letter-spacing:-.01em;margin-bottom:6px;overflow-wrap:normal}
+.dtext .t-headword.long{font-size:24px;line-height:1.2;overflow-wrap:anywhere}
+.dtext .t-heading{font-size:17px;line-height:1.35;color:#0086FF;padding-bottom:10px;border-bottom:2px solid #E6E9EE;text-wrap:balance}
+.dtext * + .t-heading{margin-top:30px}
+.dtext .t-heading:has(+ .t-meta){border-bottom:0;padding-bottom:0}
+.dtext .t-heading + .t-meta{margin-top:2px}
+.dtext .t-subheading{font-weight:500;line-height:1.4;color:#0086FF;margin-top:24px}
+.dtext .t-pron{display:flex;flex-wrap:wrap;gap:6px 22px}
+.dtext .t-pron span{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.dtext .t-pron svg{width:18px;height:18px;flex:none}
+.dtext .t-rule{height:0;border-top:2px solid #E6E9EE;margin-top:20px;margin-bottom:6px}
+.dtext .t-def .n{color:#0086FF;margin-right:.6em}
+.dtext .t-ex{color:#0086FF;font-style:italic}
+.dtext .t-ex .lead{color:#fff;font-style:normal;font-weight:600;margin-right:.5em}
+.dtext .t-def + .t-ex{margin-top:20px}
+.dtext .t-ex + .t-def{margin-top:24px}
+.dtext .t-guide,.dtext .t-phrase{color:#0086FF;margin-top:22px}
+.dtext .t-label{font-weight:600;margin-top:24px}
+.dtext .t-label + *{margin-top:2px}
+.dtext .t-quote{border-left:2px solid #3A4250;padding-left:14px}
+.dtext ul{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.dtext li{padding-left:1.4em;text-indent:-1.4em}
+.dtext li::before{content:"•";display:inline-block;width:1.4em;text-indent:0}
+.peek .ptext{background:#000;border-radius:10px;padding:18px 0;max-height:40dvh;overflow:hidden}
+.peek .ptext .dtext{padding:0 16px;font-size:13px}
+.peek .ptext .t-headword{font-size:26px}
+.rd mark{background:none;color:var(--gold)}
 .chrome{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 22px;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,0));transition:opacity .25s}
 .study.bare .chrome{opacity:0;pointer-events:none}
@@ -322,9 +355,9 @@ function newDeck(name) {
 async function addPair(deck, frame, def, extra = {}) {
   const thumb = await makeThumb(frame);
   const defBlobs = Array.isArray(def) ? def : [def];
-  const ids = { frameId: uid(), thumbId: uid(), defIds: defBlobs.map(() => uid()) };
+  const ids = { frameId: uid(), thumbId: uid(), defIds: defBlobs.map(b => b ? uid() : '') };
   ids.defId = ids.defIds[0];
-  await store.put('blobs', [{ id: ids.frameId, blob: frame }, { id: ids.thumbId, blob: thumb }, ...defBlobs.map((b, i) => ({ id: ids.defIds[i], blob: b }))]);
+  await store.put('blobs', [{ id: ids.frameId, blob: frame }, { id: ids.thumbId, blob: thumb }, ...defBlobs.map((b, i) => b && ({ id: ids.defIds[i], blob: b })).filter(Boolean)]);
   const card = Object.assign({
     id: uid(), deckId: deck.id, seq: nextSeq(deck.id), word: '',
     review: false, streak: 0, peeks: 0, seen: 0, lastSeen: 0, addedAt: Date.now()
@@ -338,7 +371,7 @@ async function addPair(deck, frame, def, extra = {}) {
 async function deleteCards(list) {
   const ids = new Set(list.map(c => c.id));
   cards = cards.filter(c => !ids.has(c.id));
-  const blobIds = list.flatMap(c => [c.frameId, c.thumbId, ...defIdsOf(c)]);
+  const blobIds = list.flatMap(c => [c.frameId, c.thumbId, ...defIdsOf(c)]).filter(Boolean);
   blobIds.forEach(id => { if (urls.has(id)) { URL.revokeObjectURL(urls.get(id)); urls.delete(id); } thumbIds.delete(id); });
   await store.del('cards', [...ids]).catch(storageFail);
   await store.del('blobs', blobIds).catch(storageFail);
@@ -597,7 +630,7 @@ function onCardsClick(e) {
 }
 async function cardSheet(c) {
   sheet(`${c.word ? `<h2>${esc(c.word)}</h2>` : '<h2 class="muted">No word yet</h2>'}
-    <div class="peek"><img id="pf" alt="Scene"><img id="pd" alt="Definition"></div>
+    <div class="peek"><img id="pf" alt="Scene">${textOf(c, 0) ? `<div class="ptext">${textHTML(textOf(c, 0))}</div>` : '<img id="pd" alt="Definition">'}</div>
     <div class="list">
       ${item('word', c.word ? 'Edit word' : 'Add word', '', '', c.word ? '' : 'So you can find it in search')}
       ${item('edit', 'Change screenshots', defIdsOf(c).length > 1 ? `${defIdsOf(c).length} definitions` : '', '', 'Replace the scene or a definition, or add another definition')}
@@ -611,7 +644,7 @@ async function cardSheet(c) {
     move: () => moveSheet([c]),
     del: () => confirmDeleteCards([c])
   });
-  const [f, d] = await Promise.all([blobURL(c.frameId), blobURL(defIdsOf(c)[0])]);
+  const [f, d] = await Promise.all([blobURL(c.frameId), textOf(c, 0) ? '' : blobURL(defIdsOf(c)[0])]);
   const pf = $('#pf'), pd = $('#pd'); if (pf) pf.src = f; if (pd) pd.src = d;
 }
 function wordSheet(c, then) {
@@ -649,7 +682,33 @@ function confirmDeleteCards(list) {
 
 /* ================= study ================= */
 let S = null;
-const defIdsOf = c => ((c.defIds && c.defIds.length) ? c.defIds : [c.defId]).filter(Boolean);
+/* A card's definitions: defIds[i] is the screenshot ('' once removed) and defText[i] its text version (or null). */
+const defIdsOf = c => (c.defIds && c.defIds.length) ? c.defIds : [c.defId].filter(Boolean);
+const textOf = (c, i) => { const t = c.defText && c.defText[i]; return t && Array.isArray(t.blocks) && t.blocks.length ? t : null; };
+const SPEAKER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const marks = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+function textHTML(t) {
+  return `<div class="dtext">${t.blocks.map(b => {
+    const items = Array.isArray(b.items) ? b.items : [];
+    switch (b.t) {
+      case 'rule': return '<div class="t-rule"></div>';
+      case 'pron': return `<div class="t-pron">${items.map(([r, ipa]) => `<span>${esc(r)} ${SPEAKER} ${esc(ipa)}</span>`).join('')}</div>`;
+      case 'list': return `<ul>${items.map(i => `<li>${marks(i)}</li>`).join('')}</ul>`;
+      case 'words': return `<div class="t-words">${items.map(marks).join(' · ')}</div>`;
+      case 'def': return `<div class="t-def">${b.n ? `<span class="n">${esc(b.n)}</span>` : ''}${marks(b.text || '')}</div>`;
+      case 'ex': return `<div class="t-ex">${b.lead ? `<span class="lead">${marks(b.lead)}</span>` : ''}${marks(b.text || '')}</div>`;
+      case 'headword': return `<div class="t-headword${String(b.text || '').length > 16 ? ' long' : ''}">${marks(b.text || '')}</div>`;
+      default: return `<div class="t-${String(b.t).replace(/[^a-z]/g, '')}">${marks(b.text || '')}</div>`;
+    }
+  }).join('')}</div>`;
+}
+const plainOf = t => t ? t.blocks.map(b => [b.lead, b.text, ...(b.items || []).flat()].filter(Boolean).join(' ')).join(' ').replace(/\*/g, '') : '';
+/* keep defText the same length as defIds */
+function alignText(c) {
+  const n = defIdsOf(c).length, t = Array.isArray(c.defText) ? c.defText.slice(0, n) : [];
+  while (t.length < n) t.push(null);
+  c.defText = t;
+}
 function buildOrder(list, sort) {
   let base = [...list].sort((a, b) => a.seq - b.seq);
   if (sort === 'newest') base.reverse();
@@ -694,18 +753,17 @@ function makeSlide(c) {
   const defs = defIdsOf(c), n = defs.length;
   const s = document.createElement('div'); s.className = 'slide';
   s.innerHTML = `<div class="frame"><img alt="Scene"></div>` + defs.map((_, i) => {
-    const r = n - 1 - i;
-    return `<div class="def"><div class="dwrap"><div class="dimg"><img alt="Definition ${i + 1}"></div>
+    const r = n - 1 - i, t = textOf(c, i);
+    return `<div class="def${t ? ' txt' : ''}"><div class="dwrap">${t ? textHTML(t) : `<div class="dimg"><img alt="Definition ${i + 1}" data-i="${i}"></div>`}
       ${r > 0 ? `<div class="more">${plural(r, 'more definition')} <b>↑</b></div>` : ''}</div></div>`;
   }).join('');
   blobURL(c.frameId).then(u => { $('.frame img', s).src = u; });
-  const imgs = $$('.def img', s);
-  defs.forEach((id, i) => blobURL(id).then(u => { imgs[i].src = u; }));
+  $$('.def img[data-i]', s).forEach(img => blobURL(defs[+img.dataset.i]).then(u => { img.src = u; }));
   return s;
 }
 function preload(c) {
   if (!c) return;
-  [c.frameId, ...defIdsOf(c)].forEach(id => blobURL(id).then(u => { if (u) { const im = new Image(); im.src = u; } }));
+  [c.frameId, ...defIdsOf(c).filter((_, i) => !textOf(c, i))].forEach(id => blobURL(id).then(u => { if (u) { const im = new Image(); im.src = u; } }));
 }
 function showSlide(i, dir) {
   const old = S.cur;
@@ -1025,16 +1083,20 @@ async function replaceScene(c, file) {
   await afterEdit(c); forget(old);
 }
 async function replaceDef(c, i, file) {
+  alignText(c);
   const ids = defIdsOf(c).slice(), old = ids[i];
   ids[i] = await putImage(file);
+  c.defText[i] = null; // the new screenshot replaces the text version too
   c.defIds = ids; c.defId = ids[0];
   await afterEdit(c); if (old) forget([old]);
 }
 async function removeDef(c, i) {
+  alignText(c);
   const ids = defIdsOf(c).slice(); if (ids.length < 2) return;
   const [old] = ids.splice(i, 1);
+  c.defText.splice(i, 1);
   c.defIds = ids; c.defId = ids[0];
-  await afterEdit(c); forget([old]);
+  await afterEdit(c); if (old) forget([old]);
 }
 function editSheet(c) {
   const defs = defIdsOf(c), many = defs.length > 1;
@@ -1059,21 +1121,43 @@ $('#onePicker').addEventListener('change', e => { const f = e.target.files[0]; e
 /* ================= search ================= */
 let searchView = null;
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const plainCache = new WeakMap();
+function cardPlain(c) { // definition text of a card, for search
+  const key = c.defText || null; const hit = key && plainCache.get(c);
+  if (hit && hit.key === key) return hit.v;
+  const v = (c.defText || []).map(t => plainOf(t && t.blocks ? t : null)).join('  ');
+  if (key) plainCache.set(c, { key, v });
+  return v;
+}
 function findWords(q) {
   const n = norm(q); if (!n) return [];
-  const out = [];
+  const out = [], seen = new Set();
   for (const c of cards) {
     if (!c.word) continue;
     const w = norm(c.word), i = w.indexOf(n);
     if (i < 0) continue;
-    out.push({ c, i, w, rank: i === 0 ? 0 : (/[\s\-']/.test(w[i - 1]) ? 1 : 2) });
+    out.push({ c, i, w, rank: i === 0 ? 0 : (/[\s\-']/.test(w[i - 1]) ? 1 : 2) }); seen.add(c.id);
+  }
+  // then cards whose definition text mentions it
+  if (n.length >= 2) for (const c of cards) {
+    if (seen.has(c.id)) continue;
+    const p = cardPlain(c); if (!p) continue;
+    const at = norm(p).indexOf(n);
+    if (at < 0) continue;
+    out.push({ c, i: -1, w: norm(c.word || '~'), rank: 3, snip: snippet(p, q) });
   }
   return out.sort((a, b) => a.rank - b.rank || a.w.localeCompare(b.w)).slice(0, 60);
+}
+function snippet(p, q) {
+  const low = p.toLowerCase(), k = low.indexOf(q.trim().toLowerCase());
+  if (k < 0) return esc(p.slice(0, 70)) + (p.length > 70 ? '…' : '');
+  const a = Math.max(0, k - 28), b = Math.min(p.length, k + q.trim().length + 40);
+  return (a ? '…' : '') + esc(p.slice(a, k)) + '<mark>' + esc(p.slice(k, k + q.trim().length)) + '</mark>' + esc(p.slice(k + q.trim().length, b)) + (b < p.length ? '…' : '');
 }
 function openSearch() {
   const el = document.createElement('div'); el.className = 'page search';
   el.innerHTML = `<div class="searchbar"><button class="iconbtn" data-q="back" aria-label="Back">${ICON.back}</button>
-      <input id="q" type="search" placeholder="Search your words" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search your words"></div>
+      <input id="q" type="search" placeholder="Search words and meanings" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search your words"></div>
     <div class="home"><div class="results" id="results"></div></div>`;
   document.body.appendChild(el); document.body.classList.add('locked');
   searchView = { el };
@@ -1097,13 +1181,14 @@ function renderResults(q) {
     return;
   }
   const hits = findWords(q);
-  if (!hits.length) { box.innerHTML = `<p class="note">No saved word matches “${esc(q.trim())}”.</p>`; return; }
+  if (!hits.length) { box.innerHTML = `<p class="note">Nothing matches “${esc(q.trim())}” in your words or definitions.</p>`; return; }
   const n = norm(q).length;
-  box.innerHTML = hits.map(({ c, i }) => {
-    const w = c.word, d = decks.find(x => x.id === c.deckId);
+  box.innerHTML = hits.map(({ c, i, snip }) => {
+    const w = c.word || '', d = decks.find(x => x.id === c.deckId);
+    const title = i < 0 ? (w ? esc(w) : '<span class="rd">No word yet</span>') : `${esc(w.slice(0, i))}<mark>${esc(w.slice(i, i + n))}</mark>${esc(w.slice(i + n))}`;
     return `<button class="res" data-card="${c.id}"><img alt="" data-blob="${c.thumbId}">
-      <span><span class="rw">${esc(w.slice(0, i))}<mark>${esc(w.slice(i, i + n))}</mark>${esc(w.slice(i + n))}</span>
-      <span class="rd">${esc(d ? d.name : '')}${c.review ? ' · <span class="due">review</span>' : ''}</span></span></button>`;
+      <span><span class="rw">${title}</span>
+      <span class="rd">${esc(d ? d.name : '')}${c.review ? ' · <span class="due">review</span>' : ''}</span>${snip ? `<span class="rd">${snip}</span>` : ''}</span></button>`;
   }).join('');
   $$('img[data-blob]', box).forEach(img => { thumbIds.add(img.dataset.blob); blobURL(img.dataset.blob).then(u => { if (u) img.src = u; }); });
 }
@@ -1121,6 +1206,8 @@ function loadZip() {
 }
 const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/heic': 'heic' };
 const MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', heic: 'image/heic' };
+const cleanText = t => (t && t.mode !== 'image' && Array.isArray(t.blocks) && t.blocks.length)
+  ? { src: String(t.source || t.src || ''), kind: String(t.kind || ''), blocks: t.blocks } : null;
 async function appMenu() {
   let used = '';
   try { const e = await navigator.storage.estimate(); used = `${Math.max(1, Math.round(e.usage / 1048576))} MB stored on this phone`; } catch {}
@@ -1128,9 +1215,30 @@ async function appMenu() {
     <div class="list">
       ${item('export', 'Back up everything', '', '', 'Saves one .zip with all decks, screenshots and review marks')}
       ${item('import', 'Import a backup', '', '', 'Adds decks and cards from a Subtext .zip')}
+      ${textPairs().length ? item('slim', 'Remove screenshots behind text', '', '', `${plural(textPairs().length, 'definition')} also have a text version`) : ''}
     </div>`, {
     export: exportAll,
-    import: () => $('#zipPicker').click()
+    import: () => $('#zipPicker').click(),
+    slim: slimSheet
+  });
+}
+/* definitions that have both a text version and the original screenshot */
+const textPairs = () => cards.flatMap(c => defIdsOf(c).map((id, i) => (id && textOf(c, i)) ? { c, i, id } : null).filter(Boolean));
+async function slimSheet() {
+  const list = textPairs(); if (!list.length) return;
+  let bytes = 0;
+  for (const p of list) { const r = await store.get('blobs', p.id).catch(() => null); if (r && r.blob) bytes += r.blob.size; }
+  sheet(`<h2>Remove ${plural(list.length, 'screenshot')}?</h2>
+    <p class="note">These definitions already show as text. Removing their screenshots frees about ${Math.max(1, Math.round(bytes / 1048576))} MB and makes backups smaller. Scenes, chatbot answers and definitions without text keep their screenshots.</p>
+    <p class="note">To get the screenshots back later, import the deck’s original .zip again.</p>
+    <div class="btns"><button class="btn" data-act="keep">Keep them</button><button class="btn danger" data-act="yes">Remove</button></div>`, {
+    keep: () => appMenu(),
+    yes: async () => {
+      const gone = [], touched = [];
+      for (const { c, i, id } of textPairs()) { c.defIds[i] = ''; c.defId = c.defIds[0]; gone.push(id); if (!touched.includes(c)) touched.push(c); }
+      await saveCards(touched); await forget(gone);
+      renderHome(); closeSheet(); toast(`Removed ${plural(gone.length, 'screenshot')}`);
+    }
   });
 }
 async function exportAll() {
@@ -1143,12 +1251,16 @@ async function exportAll() {
     const out = { id: d.id, name: d.name, sort: d.sort, createdAt: d.createdAt, cards: [] };
     for (const c of deckCards(d.id)) {
       const f = await store.get('blobs', c.frameId);
-      const dfs = (await Promise.all(defIdsOf(c).map(id => store.get('blobs', id)))).filter(Boolean);
-      if (!f || !dfs.length) continue;
+      const ids = defIdsOf(c);
+      const dfs = await Promise.all(ids.map(id => id ? store.get('blobs', id) : null));
+      const texts = ids.map((_, i) => textOf(c, i));
+      if (!f || !ids.some((_, i) => dfs[i] || texts[i])) continue;
       const fp = `images/${c.id}-scene.${EXT[f.blob.type] || 'jpg'}`;
-      const dps = dfs.map((df, i) => `images/${c.id}-definition${i ? '-' + (i + 1) : ''}.${EXT[df.blob.type] || 'jpg'}`);
-      zip.file(fp, f.blob); dfs.forEach((df, i) => zip.file(dps[i], df.blob));
-      out.cards.push({ id: c.id, word: c.word, seq: c.seq, scene: fp, definition: dps[0], definitions: dps, review: c.review, streak: c.streak, peeks: c.peeks, seen: c.seen, lastSeen: c.lastSeen, addedAt: c.addedAt });
+      const dps = dfs.map((df, i) => df ? `images/${c.id}-definition${i ? '-' + (i + 1) : ''}.${EXT[df.blob.type] || 'jpg'}` : null);
+      zip.file(fp, f.blob); dfs.forEach((df, i) => { if (df) zip.file(dps[i], df.blob); });
+      const mc = { id: c.id, word: c.word, seq: c.seq, scene: fp, definition: dps[0], definitions: dps, review: c.review, streak: c.streak, peeks: c.peeks, seen: c.seen, lastSeen: c.lastSeen, addedAt: c.addedAt };
+      if (texts.some(Boolean)) mc.definitionText = texts;
+      out.cards.push(mc);
       progress(`${++done} of ${cards.length} cards`, done / cards.length * 0.6);
     }
     man.decks.push(out);
@@ -1164,7 +1276,7 @@ async function exportAll() {
 $('#zipPicker').addEventListener('change', async e => {
   const files = [...e.target.files]; e.target.value = ''; if (!files.length) return;
   progressSheet('Importing', 'Reading the file…');
-  let added = 0, updated = 0, skipped = 0; const touched = new Set();
+  let added = 0, updated = 0, skipped = 0, mismatched = 0, absent = 0; const touched = new Set();
   try {
     const JSZip = await loadZip();
     for (let fi = 0; fi < files.length; fi++) {
@@ -1177,47 +1289,76 @@ $('#zipPicker').addEventListener('change', async e => {
       const total = (man.decks || []).reduce((n, d) => n + (d.cards || []).length, 0) || 1;
       let n = 0;
       for (const md of man.decks || []) {
+        // find the deck; only create it if a new card actually needs it
         let d = decks.find(x => md.id && x.id === md.id) || decks.find(x => x.name.toLowerCase() === String(md.name || '').trim().toLowerCase());
-        if (!d) {
+        const deckFor = async () => {
+          if (d) return d;
           d = { id: md.id && !decks.some(x => x.id === md.id) ? md.id : uid(), name: String(md.name || 'Imported').trim(), sort: SORTS[md.sort] ? md.sort : 'added', createdAt: md.createdAt || Date.now() };
           decks.push(d); await store.put('decks', [d]);
-        }
+          return d;
+        };
         const list = [...(md.cards || [])].sort((a, b) => (a.seq ?? 0) - (b.seq ?? 0));
         for (const mc of list) {
           n++;
           progress(`${label}${n} of ${total}`, n / total);
           const type = p => MIME[p.split('.').pop().toLowerCase()] || 'image/jpeg';
           const read = async p => { const zf = p && zip.file(p); return zf ? new Blob([await zf.async('arraybuffer')], { type: type(p) }) : null; };
-          const sp = mc.scene || mc.frame, dps = (mc.definitions && mc.definitions.length) ? mc.definitions : [mc.definition];
+          const sp = mc.scene || mc.frame;
+          const dps = (mc.definitions && mc.definitions.length) ? mc.definitions : (mc.definition ? [mc.definition] : []);
+          const hasText = Array.isArray(mc.definitionText);
+          const texts = hasText ? mc.definitionText.map(cleanText) : [];
+          const count = Math.max(dps.length, texts.length);
           const have = mc.id && cards.find(c => c.id === mc.id);
           if (have) {
-            // already in the app: keep review progress; refresh the word, and the images when the file says so
+            // already in the app: keep review progress; refresh the word, the text, and the images when the file says so
             let changed = false;
             if (mc.word && mc.word !== have.word) { have.word = mc.word; changed = true; }
             if (mc.update) {
-              const scene = await read(sp), defs = (await Promise.all(dps.map(read))).filter(Boolean);
-              if (scene && defs.length) {
-                const old = [have.frameId, have.thumbId, ...defIdsOf(have)];
+              const scene = await read(sp), imgs = await Promise.all(Array.from({ length: count }, (_, i) => read(dps[i])));
+              const keep = imgs.map((b, i) => (b || texts[i]) ? i : -1).filter(i => i >= 0);
+              if (scene && keep.length) {
+                alignText(have);
+                const oldText = have.defText, old = [have.frameId, have.thumbId, ...defIdsOf(have)];
                 have.frameId = await putImage(scene); have.thumbId = await putImage(await makeThumb(scene)); thumbIds.add(have.thumbId);
-                have.defIds = []; for (const b of defs) have.defIds.push(await putImage(b));
+                have.defIds = []; for (const i of keep) have.defIds.push(imgs[i] ? await putImage(imgs[i]) : '');
+                have.defText = hasText ? keep.map(i => texts[i] || null) : (oldText.length === keep.length ? oldText : keep.map(() => null));
                 have.defId = have.defIds[0]; forget(old); changed = true;
               }
+            } else {
+              // fill in definition screenshots that were removed earlier, if this file has them
+              const ids = defIdsOf(have);
+              if (ids.some(id => !id) && dps.length === ids.length) {
+                for (let i = 0; i < ids.length; i++) if (!ids[i]) { const img = await read(dps[i]); if (img) { ids[i] = await putImage(img); changed = true; } }
+                have.defIds = ids; have.defId = ids[0];
+              }
+            }
+            if (!mc.update && hasText) {
+              alignText(have);
+              const ids = defIdsOf(have);
+              if (texts.length !== ids.length) mismatched++;
+              else texts.forEach((t, i) => {
+                if (!t && !ids[i]) return; // never leave a definition with neither screenshot nor text
+                if (JSON.stringify(t) !== JSON.stringify(have.defText[i])) { have.defText[i] = t; changed = true; }
+              });
             }
             if (changed) { await store.put('cards', [have]); updated++; touched.add(have.deckId); } else skipped++;
             continue;
           }
-          const scene = await read(sp), defs = (await Promise.all(dps.map(read))).filter(Boolean);
-          if (!scene || !defs.length) { skipped++; continue; }
-          const def = defs;
-          const extra = { word: mc.word || '', review: !!mc.review, streak: mc.streak || 0, peeks: mc.peeks || 0, seen: mc.seen || 0, lastSeen: mc.lastSeen || 0, addedAt: mc.addedAt || Date.now() };
+          const scene = await read(sp), imgs = await Promise.all(Array.from({ length: count }, (_, i) => read(dps[i])));
+          const keep = imgs.map((b, i) => (b || texts[i]) ? i : -1).filter(i => i >= 0);
+          if (!sp) { absent++; continue; } // a text-only file mentions a card this phone doesn't have
+          if (!scene || !keep.length) { skipped++; continue; }
+          const extra = { word: mc.word || '', review: !!mc.review, streak: mc.streak || 0, peeks: mc.peeks || 0, seen: mc.seen || 0, lastSeen: mc.lastSeen || 0, addedAt: mc.addedAt || Date.now(),
+            defText: keep.map(i => texts[i] || null) };
           if (mc.id) extra.id = mc.id;
-          await addPair(d, scene, def, extra);
-          added++; touched.add(d.id);
+          const dd = await deckFor();
+          await addPair(dd, scene, keep.map(i => imgs[i]), extra);
+          added++; touched.add(dd.id);
         }
       }
     }
     askPersist(); renderHome(); closeSheet();
-    toast([added ? `Imported ${plural(added, 'card')}` : '', updated ? `Updated ${plural(updated, 'card')}` : '', skipped ? `${skipped} already up to date` : ''].filter(Boolean).join(' · ') || 'Nothing to import');
+    toast([added ? `Imported ${plural(added, 'card')}` : '', updated ? `Updated ${plural(updated, 'card')}` : '', skipped - mismatched > 0 ? `${skipped - mismatched} already up to date` : '', mismatched ? `${mismatched} skipped: definitions didn’t line up` : '', absent ? `${plural(absent, 'card')} not on this phone` : ''].filter(Boolean).join(' · ') || 'Nothing to import');
   } catch (err) {
     console.error(err);
     askPersist(); renderHome(); closeSheet();
