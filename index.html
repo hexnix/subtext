@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,300;1,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,300;1,700&family=Literata:ital,opsz,wght@0,7..72,300..700;1,7..72,300..700&display=swap">
 <style>
 :root{
   --ink:#000000; --surface:#111214; --raised:#1C1D20; --line:#26282C;
@@ -560,19 +560,20 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 /* ---------- the video player (v37; the owner's picks 1A, 3A, 4A, subtitles like the phone's own player) ---------- */
 .vplay{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text);font-size:15px}
 .vplay .disc{width:72px;height:72px;border-radius:50%;background:var(--raised);display:grid;place-items:center}
-/* the book reader (v44): Merriweather for every word in it */
-.book{position:fixed;inset:0;z-index:45;background:#000;color:#fff;overflow:hidden;font-family:'Merriweather',Georgia,serif;animation:fadein .2s ease;
-  --bk-fs:17px;--bk-lh:1.72;--bk-pad:24px;--bk-top:calc(env(safe-area-inset-top,0px) + 46px);--bk-bot:calc(env(safe-area-inset-bottom,0px) + 46px)}
-.book .bk-head{position:absolute;left:0;right:0;top:0;height:var(--bk-top);display:flex;align-items:flex-end;justify-content:center;padding:0 60px 8px;pointer-events:none}
-.book .bk-ch,.book .bk-prog{font:300 12.5px/1.3 'Merriweather',Georgia,serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.book .bk-foot{position:absolute;left:0;right:0;bottom:0;height:var(--bk-bot);display:flex;align-items:flex-start;justify-content:center;padding:10px 24px 0;pointer-events:none}
+/* the book reader (v44): one font for every word in it, Literata (the closest free match to Kindle's Bookerly, v46) or Merriweather */
+:root{--bk-ff:var(--bk-font,'Literata',Georgia,serif);--bk-fw:var(--bk-weight,400)}
+.book{position:fixed;inset:0;z-index:45;background:#000;color:#fff;overflow:hidden;font-family:var(--bk-ff);animation:fadein .2s ease;
+  --bk-fs:16px;--bk-lh:1.33;--bk-pad:29px;--bk-top:calc(env(safe-area-inset-top,0px) + 46px);--bk-bot:calc(env(safe-area-inset-bottom,0px) + 46px)}
+.book .bk-head{display:none}
+.book .bk-ch,.book .bk-prog{font:400 13px/1.3 var(--bk-ff);color:#A8A8A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.book .bk-foot{position:absolute;left:0;right:0;bottom:0;height:var(--bk-bot);display:flex;align-items:center;justify-content:flex-end;padding:0 var(--bk-pad) env(safe-area-inset-bottom,0px);pointer-events:none}
 .book .bk-stage{position:absolute;left:0;right:0;top:var(--bk-top);bottom:var(--bk-bot);overflow:hidden;touch-action:pan-y}
-.book .bk-page{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px var(--bk-pad) 0;will-change:transform}
-.bk-text{font:300 var(--bk-fs)/var(--bk-lh) 'Merriweather',Georgia,serif;color:#E4E4E4;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.book .bk-page{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px var(--bk-pad) 0;will-change:transform;touch-action:pan-y}
+.bk-text{font:var(--bk-fw) var(--bk-fs)/var(--bk-lh) var(--bk-ff);font-variation-settings:var(--bk-fvs,normal);color:#CCCCCC;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
 .bk-text p{margin:0 0 1.05em}
-.bk-text h1,.bk-text h2,.bk-text h3,.bk-text h4,.bk-text h5,.bk-text h6{font-family:'Merriweather',Georgia,serif;font-weight:700;color:#fff;line-height:1.3;margin:1.2em 0 .8em;hyphens:manual}
+.bk-text h1,.bk-text h2,.bk-text h3,.bk-text h4,.bk-text h5,.bk-text h6{font-family:var(--bk-ff);font-weight:700;color:#fff;line-height:1.3;margin:1.2em 0 .8em;hyphens:manual}
 .bk-text h1{font-size:1.4em}.bk-text h2{font-size:1.25em}.bk-text h3{font-size:1.1em}.bk-text h4,.bk-text h5,.bk-text h6{font-size:1em}
-.bk-text > :first-child,.bk-text > div:first-child > :first-child{margin-top:.4em}
+.bk-text:not(.bk-own) > :first-child,.bk-text:not(.bk-own) > div:first-child > :first-child{margin-top:.4em}
 .bk-text b,.bk-text strong{font-weight:700;color:#fff}
 .bk-text em,.bk-text i,.bk-text cite{font-style:italic}
 .bk-text blockquote{margin:0 0 1.05em;padding-left:1em;border-left:1px solid var(--line);color:#C9CBCF}
@@ -581,77 +582,91 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 .bk-text hr{border:0;margin:1.6em auto;width:40%;border-top:1px solid var(--line)}
 .bk-text img{display:block;max-width:100%;height:auto;margin:.6em auto 1em;border-radius:4px}
 .bk-text figcaption{font-size:.85em;color:var(--muted);text-align:center;margin:-.4em 0 1em}
-.bk-text a[data-to],.bk-text a[data-out]{color:var(--blue-text);text-decoration:none}
+.bk-text a[data-to],.bk-text a[data-out]{color:#94BFE6;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
 .bk-text sup,.bk-text sub{font-size:.7em;line-height:0}
 .bk-text table{border-collapse:collapse;margin:0 0 1em;font-size:.9em}
 .bk-text td,.bk-text th{border:1px solid var(--line);padding:4px 8px}
 .bk-text pre{white-space:pre-wrap;font-size:.85em}
-.book .bk-end{padding:36px 0 calc(42px + env(safe-area-inset-bottom,0px));text-align:center;font:300 13px 'Merriweather',Georgia,serif;color:var(--faint)}
-.book .bk-wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 32px;text-align:center;color:var(--muted);font:300 15px/1.6 'Merriweather',Georgia,serif;background:#000;z-index:2}
+.book .bk-end{padding:36px 0 calc(42px + env(safe-area-inset-bottom,0px));text-align:center;font:300 13px var(--bk-ff);color:var(--faint)}
+.book .bk-wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 32px;text-align:center;color:var(--muted);font:300 15px/1.6 var(--bk-ff);background:#000;z-index:2}
 .book .bk-wait b{color:#fff;font-weight:300}
-.book .bk-wait .btn{flex:none;font-family:'Merriweather',Georgia,serif}
+.book .bk-wait .btn{flex:none;font-family:var(--bk-ff)}
 .book.failed .bk-bot,.book.failed [data-b=toc],.book.failed [data-b=text]{display:none}
 .book .bk-ctl{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;z-index:3}
 .book.ui .bk-ctl{opacity:1}
 .book.ui .bk-top,.book.ui .bk-bot{pointer-events:auto}
 .book .bk-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:2px;padding:calc(env(safe-area-inset-top,0px) + 8px) 6px 8px;background:#000;border-bottom:1px solid var(--line)}
-.book .bk-title{flex:1;min-width:0;padding:0 6px;font:700 16px/1.3 'Merriweather',Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bk-aa{font:700 17px 'Merriweather',Georgia,serif;letter-spacing:-.02em}
+.book .bk-title{flex:1;min-width:0;padding:0 6px;font:700 16px/1.3 var(--bk-ff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-aa{font:700 17px var(--bk-ff);letter-spacing:-.02em}
 .bk-aa small{font-size:12px;font-weight:300}
 .book .bk-bot{position:absolute;left:0;right:0;bottom:0;padding:18px 24px calc(env(safe-area-inset-bottom,0px) + 18px);background:#000;border-top:1px solid var(--line)}
-.book .bk-row{display:flex;justify-content:space-between;gap:14px;font:300 13px/1.4 'Merriweather',Georgia,serif}
+.book .bk-row{display:flex;justify-content:space-between;gap:14px;font:300 13px/1.4 var(--bk-ff)}
 .book .bk-row.mut{color:var(--muted)}
 .book .bk-row .bk-cname{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .book .bk-row .bk-pct{color:var(--muted)}
 .book .bk-seek{padding:16px 0;margin:2px 0;touch-action:none}
 .book .bk-track{position:relative;height:3px;background:rgba(255,255,255,.3);border-radius:2px}
 .book .bk-done{position:absolute;left:0;top:0;bottom:0;background:var(--gold);border-radius:2px}
-.book .bk-ticks i{position:absolute;top:-3px;width:1px;height:9px;background:rgba(255,255,255,.45)}
 .book .bk-knob{position:absolute;top:50%;width:16px;height:16px;margin:-8px;border-radius:50%;background:var(--gold)}
-.book .bk-toc{position:absolute;inset:0;z-index:4;background:#000;overflow-y:auto;padding:0 20px 40px;transition:opacity .2s;animation:fadein .2s ease;font-family:'Merriweather',Georgia,serif}
+.book .bk-toc{position:absolute;inset:0;z-index:4;background:#000;overflow-y:auto;padding:0 20px 40px;transition:opacity .2s;animation:fadein .2s ease;font-family:var(--bk-ff)}
 .book .bk-toc .pbar{margin-top:0;padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
-.book .bk-toc .pt{font:700 19px/1.3 'Merriweather',Georgia,serif;letter-spacing:0}
-.book .bk-toc .summary{padding-left:32px;font:300 13px/1.6 'Merriweather',Georgia,serif}
+.book .bk-toc .pt{font:700 19px/1.3 var(--bk-ff);letter-spacing:0}
+.book .bk-toc .summary{padding-left:32px;font:300 13px/1.6 var(--bk-ff)}
 .book .bk-rows{margin:14px -20px 0}
-.book .bk-trow2{display:flex;gap:14px;align-items:baseline;width:100%;padding:14px 22px;text-align:left;font:300 15px/1.45 'Merriweather',Georgia,serif;color:#fff}
+.book .bk-trow2{display:flex;gap:14px;align-items:baseline;width:100%;padding:14px 22px;text-align:left;font:300 15px/1.45 var(--bk-ff);color:#fff}
 .book .bk-trow2 .k{width:24px;flex:none;font-size:13px;color:var(--muted)}
 .book .bk-trow2 .nm{flex:1;min-width:0}
 .book .bk-trow2 .pg{flex:none;font-size:12.5px;color:var(--muted)}
 .book .bk-trow2.sub .nm{padding-left:14px;font-size:14px;color:#C9CBCF}
 .book .bk-trow2.read .nm{color:#B8BABF}
 .book .bk-trow2.on .nm,.book .bk-trow2.on .k,.book .bk-trow2.on .pg{color:var(--blue-text)}
-.bkfont,.bkfont h2,.bkfont .sub,.bkfont .item{font-family:'Merriweather',Georgia,serif}
+.bkfont,.bkfont h2,.bkfont .sub,.bkfont .item{font-family:var(--bk-ff)}
 .bkfont h2{font-weight:700}
 .bk-tsheet .bk-trow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
-.bk-tsheet .bk-trow > span{color:var(--muted);font:300 14px 'Merriweather',Georgia,serif}
+.bk-tsheet .bk-trow > span{color:var(--muted);font:300 14px var(--bk-ff)}
 .bk-tsheet .bk-trow > div{display:flex;align-items:center;gap:8px}
-.bk-pill{padding:9px 14px;border-radius:18px;border:1px solid #45484E;font:300 13.5px 'Merriweather',Georgia,serif;color:#fff}
+.bk-pill{padding:9px 14px;border-radius:18px;border:1px solid #45484E;font:300 13.5px var(--bk-ff);color:#fff}
 .bk-pill.on{background:var(--gold);border-color:var(--gold)}
 .bk-pill.sz{width:52px;height:40px;padding:0;display:grid;place-items:center;font-size:14px}
 .bk-pill.sz.big{font-size:21px}
-.bk-tsheet .bk-n{width:30px;text-align:center;font:300 15px 'Merriweather',Georgia,serif}
+.bk-tsheet .bk-n{width:30px;text-align:center;font:300 15px var(--bk-ff)}
 /* book notes (v45, picks A1, B1, C1): the bar under picked words, highlights, a highlight's card */
 .bk-text mark{background:none;color:inherit}
-.bk-text mark.hl.s{text-decoration:underline 2px rgba(255,255,255,.75);text-underline-offset:4px;text-decoration-skip-ink:none}
+.bk-text{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.bk-text mark.hl.s{background:color-mix(in srgb,var(--hl,#F5C518) 50%,transparent);color:#fff;border-radius:2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.bk-text mark.hl.s.made{text-decoration:underline 2px var(--gold);text-underline-offset:4px;text-decoration-skip-ink:none}
+.bk-text mark.hl.ed{background:color-mix(in srgb,var(--hl,#F5C518) 64%,transparent)}
+.book .bk-hd{position:absolute;z-index:2;width:22px;height:22px;margin-left:-11px;background:var(--hl-h,#fff);touch-action:none}
+.book .bk-hd.s{border-radius:50% 0 50% 50%;margin-left:-22px}
+.book .bk-hd.e{border-radius:0 50% 50% 50%;margin-left:0}
+.book .bk-hd::before{content:'';position:absolute;inset:-12px}
 .bk-text mark.hl.c{background:rgba(0,134,255,.28);color:#fff;border-radius:3px;box-shadow:0 0 0 1.5px rgba(0,134,255,.28);-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.bk-text mark.hl.pend{background:rgba(0,134,255,.38);color:#fff;text-decoration:none}
-.book .bk-selbar{position:absolute;z-index:6;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:#1C1D20;border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.6);white-space:nowrap;animation:fadein .15s;user-select:none;-webkit-user-select:none}
-.book .bk-selbar button{padding:9px 14px;border-radius:10px;font:300 14.5px 'Merriweather',Georgia,serif;color:#fff}
+.book .bk-selbar{position:absolute;z-index:6;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:4px;background:#1C1D20;border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.6);white-space:nowrap;animation:fadein .15s;user-select:none;-webkit-user-select:none}
+.book .bk-selbar button{padding:9px 14px;border-radius:10px;font:300 14.5px var(--bk-ff);color:#fff}
 .book .bk-selbar button.on{background:var(--gold)}
 .book .bk-selbar button.q{color:var(--muted);padding:9px 12px}
 .book .bk-selbar button.q.has{color:var(--blue-text)}
 .book .bk-selbar i{width:1px;height:22px;background:#3A3C41;margin:0 2px}
+.book .bk-selbar .r{display:flex;align-items:center;gap:2px}
+.book .bk-selbar .rm{padding:8px 10px;color:var(--muted)}
+.book .bk-selbar .rm svg{width:20px;height:20px}
+.book .bk-selbar .cols{justify-content:center;gap:14px;padding:6px 0 4px;border-top:1px solid #2A2C30}
+.book .bk-selbar .dot{width:28px;height:28px;padding:0;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);position:relative;flex:none}
+.book .bk-selbar .dot.on{background:var(--c);box-shadow:0 0 0 2px #1C1D20,0 0 0 4px #fff}
+.book .bk-selbar .dot.any{background:conic-gradient(#FF5A5A,#F5C518,#5BD18B,#4DA8FF,#B07CFF,#FF6FAE,#FF5A5A)}
+.book .bk-selbar .dot.any.on{background:radial-gradient(var(--c) 0 52%,transparent 54%),conic-gradient(#FF5A5A,#F5C518,#5BD18B,#4DA8FF,#B07CFF,#FF6FAE,#FF5A5A)}
+.book .bk-selbar .dot input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0;padding:0;cursor:pointer}
 .book .bk-strip{position:absolute;z-index:6;left:16px;right:16px;bottom:calc(var(--bk-bot) + 12px);display:flex;gap:12px;align-items:center;background:rgba(28,29,32,.97);border-radius:16px;padding:10px 6px 10px 10px;box-shadow:0 6px 24px rgba(0,0,0,.6);animation:fadein .15s;transition:opacity .2s;user-select:none;-webkit-user-select:none}
 .book .bk-strip.out{opacity:0}
 .book .bk-strip .pic{width:64px;height:40px;border-radius:8px;overflow:hidden;background:#2a2b2f;flex:none}
 .book .bk-strip img{width:100%;height:100%;object-fit:cover;display:block}
 .book .bk-strip .tx{flex:1;min-width:0;padding-left:4px}
-.book .bk-strip b{display:block;font:700 15px/1.35 'Merriweather',Georgia,serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.book .bk-strip small{display:block;font:300 12.5px/1.4 'Merriweather',Georgia,serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.book .bk-strip button{flex:none;padding:10px 12px;color:var(--blue-text);font:300 14px 'Merriweather',Georgia,serif}
-.book .bk-toast{position:absolute;z-index:7;left:50%;bottom:calc(var(--bk-bot) + 12px);transform:translateX(-50%);background:#1C1D20;border-radius:14px;padding:10px 8px 10px 18px;display:flex;gap:6px;align-items:center;max-width:calc(100vw - 32px);animation:fadein .15s;font:300 14px 'Merriweather',Georgia,serif;color:#fff}
+.book .bk-strip b{display:block;font:700 15px/1.35 var(--bk-ff);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book .bk-strip small{display:block;font:300 12.5px/1.4 var(--bk-ff);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book .bk-strip button{flex:none;padding:10px 12px;color:var(--blue-text);font:300 14px var(--bk-ff)}
+.book .bk-toast{position:absolute;z-index:7;left:50%;bottom:calc(var(--bk-bot) + 12px);transform:translateX(-50%);background:#1C1D20;border-radius:14px;padding:10px 8px 10px 18px;display:flex;gap:6px;align-items:center;max-width:calc(100vw - 32px);animation:fadein .15s;font:300 14px var(--bk-ff);color:#fff}
 .book .bk-toast span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.book .bk-toast button{color:var(--blue-text);font:300 14px 'Merriweather',Georgia,serif;padding:4px 10px}
+.book .bk-toast button{color:var(--blue-text);font:300 14px var(--bk-ff);padding:4px 10px}
 .player{position:fixed;inset:0;z-index:50;background:#000;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   --sub:1;--ui:0;--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--sb:env(safe-area-inset-bottom,0px)}
 .player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform-origin:50% 50%}
@@ -4569,8 +4584,11 @@ function openBooksDB() {
 }
 const booksDB = () => booksReady || (booksReady = openBooksDB().then(db => { bkstore = idbStore(db); }, e => console.warn('book storage unavailable, using memory', e)));
 const bookKey = r => `b:${r.size}:${r.name}`; // known by name and size, so a moved book keeps its place
-const BK_SIZES = [14, 15, 16, 17, 18, 19, 20, 22, 24], BK_LINES = { close: 1.5, normal: 1.72, open: 1.95 }, BK_MARGINS = { narrow: 16, normal: 24, wide: 34 };
-const bkText = () => Object.assign({ s: 17, l: 'normal', m: 'normal' }, (() => { try { return JSON.parse(ls.get('book.text') || '{}') || {}; } catch { return {}; } })());
+const BK_SIZES = [14, 15, 16, 17, 18, 19, 20, 22, 24], BK_LINES = { book: 1.33, normal: 1.5, open: 1.72 }, BK_MARGINS = { narrow: 18, normal: 29, wide: 40 };
+// v46, matched to Kindle's page: 16px, the book's own line spacing (1.33 when it sets none), 29px margins
+// Literata at its 36 pt cut sets lines almost word for word like Bookerly on the owner's Kindle screenshots
+const BK_FONTS = { literata: ["'Literata',Georgia,serif", 400, "'opsz' 36"], merriweather: ["'Merriweather',Georgia,serif", 300, 'normal'] };
+const bkText = () => Object.assign({ s: 16, l: 'book', m: 'normal', f: 'literata' }, (() => { try { return JSON.parse(ls.get('book.text') || '{}') || {}; } catch { return {}; } })());
 const ICON_TOC = svg('<path d="M4 6.5h16M4 12h16M4 17.5h10"/>');
 const ICON_AA = '<span class="bk-aa" aria-hidden="true">A<small>a</small></span>';
 
@@ -4639,7 +4657,66 @@ async function bkParse(file) {
   return { z, zf, title: meta('title'), author: meta('creator'), pages, toc, cover, total: pages.reduce((a, p) => a + p.size, 0) };
 }
 
-/* ---- one chapter as plain, safe HTML: the book's own styles and scripts are left out, so it reads in Agora's look ---- */
+/* ---- one chapter as plain, safe HTML. Its scripts and anything active are left out; its own styles are kept (v46) the way Kindle
+   keeps them, from a short list: colours (made lighter for the black page, as Kindle's dark mode does), sizes, alignment, indents,
+   margins, italics and weights. Its fonts, line spacing, backgrounds and anything that could reach outside the book are not. ---- */
+const BK_PROPS = new Set(['color', 'font-size', 'font-style', 'font-weight', 'font-variant', 'font-variant-caps', 'text-align', 'text-indent', 'text-transform',
+  'letter-spacing', 'margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'padding-left', 'padding-right', 'vertical-align', 'display', 'hyphens',
+  '-webkit-hyphens', 'white-space']);
+let bkInkCtx = null;
+// a colour for the black page: greys and near-black become the page's own text colour, others are made light enough to read
+function bkInk(v) {
+  const c = bkInkCtx || (bkInkCtx = document.createElement('canvas').getContext('2d'));
+  c.fillStyle = '#010203'; c.fillStyle = v; const h = c.fillStyle;
+  if (!/^#[0-9a-f]{6}$/i.test(h) || h === '#010203') return '';
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  if (mx - mn < 0.12) return '';
+  let l = (mx + mn) / 2, sa = (mx - mn) / (1 - Math.abs(2 * l - 1)), hu = mx === r ? ((g - b) / (mx - mn) + 6) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4;
+  l = Math.max(l, 0.65); sa = Math.min(sa, 0.72);
+  return `hsl(${Math.round(hu * 60)} ${Math.round(sa * 100)}% ${Math.round(l * 100)}%)`;
+}
+function bkCSS(text) {
+  const sh = new CSSStyleSheet();
+  try { sh.replaceSync(String(text).replace(/@import[^;]*;?/gi, '')); } catch { return ''; }
+  let out = '';
+  for (const r of sh.cssRules) {
+    if (!(r instanceof CSSStyleRule)) continue;
+    const sels = r.selectorText.split(',').map(x => x.trim()).filter(x => x && /^[a-z0-9_\-.\s>+~]+$/i.test(x) && !/(^|[\s>+~])(html|body)\b/i.test(x))
+      .map(x => '.bk-own ' + x.replace(/\.(-?[_a-z][\w-]*)/gi, '.bc-$1'));
+    if (!sels.length) continue;
+    const decl = [];
+    const lh = r.style.getPropertyValue('line-height').trim(); // the book's line spacing, only while Lines is set to Book
+    if (/^[\d.]+(em|%)?$/.test(lh)) out += `${sels.map(x => '.lh-book ' + x).join(',')}{line-height:${lh}}\n`;
+    for (let k = 0; k < r.style.length; k++) {
+      const pr = r.style[k]; if (!BK_PROPS.has(pr)) continue;
+      let v = r.style.getPropertyValue(pr).trim(); if (!v || /[(\\;{}<]/.test(v) && !/^(rgb|hsl)a?\(/.test(v)) continue;
+      if (pr === 'color') { // only a class's colour (a heading, a quote); the plain text keeps the reader's own
+        v = bkInk(v); const cs = sels.filter(x => x.includes('.bc-'));
+        if (v && cs.length) out += `${cs.join(',')}{color:${v}}\n`;
+        continue;
+      }
+      if (pr === 'display' && !/^(none|block|inline|inline-block|list-item)$/.test(v)) continue;
+      if (pr === 'font-size') { // a fixed size would ignore the reader's own size: as a share of 16px instead
+        const m = v.match(/^([\d.]+)(px|pt)$/); if (m) v = (parseFloat(m[1]) * (m[2] === 'pt' ? 4 / 3 : 1) / 16).toFixed(3) + 'em';
+      }
+      decl.push(`${pr}:${v}`);
+    }
+    if (decl.length) out += `${sels.join(',')}{${decl.join(';')}}\n`;
+  }
+  return out;
+}
+async function bkStyles(B, d, dir) {
+  B.css = B.css || new Map();
+  let css = '';
+  for (const l of bkTag(d, 'link')) {
+    if (!/stylesheet/i.test(l.getAttribute('rel') || '') || /xpgt/i.test(l.getAttribute('type') || '')) continue;
+    const h = bkPath(dir, l.getAttribute('href')); if (!h) continue;
+    if (!B.css.has(h)) { const f = B.zf(h); B.css.set(h, f ? bkCSS(await f.async('string')) : ''); }
+    css += B.css.get(h);
+  }
+  for (const st of bkTag(d, 'style')) css += bkCSS(st.textContent);
+  return css;
+}
 const BK_KEEP = new Set(['p', 'div', 'section', 'article', 'header', 'footer', 'aside', 'main', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'em', 'i', 'b', 'strong', 'u', 's',
   'sup', 'sub', 'small', 'blockquote', 'ul', 'ol', 'li', 'br', 'hr', 'img', 'a', 'figure', 'figcaption', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'pre', 'code',
   'cite', 'q', 'dl', 'dt', 'dd', 'abbr', 'mark']);
@@ -4664,6 +4741,7 @@ async function bkChapter(B, i) {
       if (!BK_KEEP.has(t)) { copy(n, to); continue; }
       const e = document.createElement(t);
       const id = n.getAttribute('id'); if (id) e.dataset.id = id;
+      const cl = (n.getAttribute('class') || '').split(/\s+/).map(x => x.replace(/[^\w-]/g, '')).filter(Boolean); if (cl.length) e.className = cl.map(x => 'bc-' + x).join(' ');
       if (t === 'img') { const s = n.getAttribute('src'); if (s) { e.dataset.src = bkPath(dir, s); e.alt = n.getAttribute('alt') || ''; pics.push(e); } }
       if (t === 'a') { const h = n.getAttribute('href') || ''; if (/^[a-z]+:/i.test(h)) e.dataset.out = h; else if (h) { e.dataset.to = h.startsWith('#') ? pg.href : bkPath(dir, h); e.dataset.frag = h.split('#')[1] || ''; } }
       if (t === 'td' || t === 'th') for (const a of ['colspan', 'rowspan']) if (n.getAttribute(a)) e.setAttribute(a, n.getAttribute(a));
@@ -4671,6 +4749,7 @@ async function bkChapter(B, i) {
     }
   };
   copy(body, out);
+  out.css = await bkStyles(B, d, dir);
   for (const e of pics) {
     const f = B.zf(e.dataset.src);
     if (!f) { e.remove(); continue; }
@@ -4690,7 +4769,7 @@ function openBook(r, go) {
         <button class="iconbtn" data-b="toc" aria-label="Contents">${ICON_TOC}</button><button class="iconbtn" data-b="text" aria-label="Text size">${ICON_AA}</button>
         <button class="iconbtn" data-b="more" aria-label="Options for this book">${ICON.more}</button></div>
       <div class="bk-bot"><div class="bk-row"><span class="bk-cname"></span><span class="bk-pct num"></span></div>
-        <div class="bk-seek" role="slider" aria-label="Position in the book"><div class="bk-track"><div class="bk-done"></div><div class="bk-ticks"></div><div class="bk-knob"></div></div></div>
+        <div class="bk-seek" role="slider" aria-label="Position in the book"><div class="bk-track"><div class="bk-done"></div><div class="bk-knob"></div></div></div>
         <div class="bk-row mut"><span class="bk-cnum num"></span><span class="bk-left num"></span></div></div></div>
     <div class="bk-selbar" hidden></div><div class="bk-wait">Opening…</div>`;
   document.body.appendChild(el); document.body.classList.add('locked');
@@ -4698,7 +4777,7 @@ function openBook(r, go) {
   $('.bk-title', el).textContent = r.name.replace(/\.epub$/i, '');
   bkApplyText();
   el.addEventListener('click', bkClick);
-  bkGestures(); bkSeekBar(); bkSelBar(); bkSelWatch(true);
+  bkGestures(); bkSeekBar(); bkSelBar();
   pushLayer(closeBook);
   bkLoad();
 }
@@ -4713,7 +4792,6 @@ async function bkLoad() {
     Object.assign(B, book);
     B.rec.title = book.title || B.rec.title; B.rec.author = book.author || '';
     if (book.title) $('.bk-title', B.el).textContent = book.title;
-    $('.bk-ticks', B.el).innerHTML = B.pages.slice(1).filter(p => p.name).map(p => `<i style="left:${(bkStartOf(p.i) * 100).toFixed(2)}%"></i>`).join('');
     const gi = B.go ? B.pages.findIndex(p => p.href === B.go.href) : -1; // opened from a line saved for a card: there
     const ch = gi >= 0 ? gi : Math.min(B.pages.length - 1, Math.max(0, B.rec.ch | 0)), had = gi < 0 && B.rec.ch != null && (ch > 0 || B.rec.y > 0.02);
     await bkShow(ch, 0, gi >= 0 ? 0 : B.rec.y || 0);
@@ -4731,7 +4809,7 @@ async function bkLoad() {
 }
 function closeBook() {
   const B = BK; if (!B) return;
-  bkSave(); bkSelWatch(false); BK = null;
+  bkSave(); BK = null;
   B.el.style.transition = 'opacity .2s'; B.el.style.opacity = '0';
   setTimeout(() => { B.el.remove(); B.urls.forEach(u => URL.revokeObjectURL(u)); }, 220);
   unlockIdle();
@@ -4746,12 +4824,14 @@ async function bkShow(i, dir, y, frag) {
   if (B.page) B.seen.set(B.ch, B.page.scrollTop);
   const pg = document.createElement('div'); pg.className = 'bk-page';
   const text = await bkChapter(B, i); if (BK !== B) return;
-  text.className = 'bk-text'; pg.appendChild(text);
+  text.className = 'bk-text' + (text.css ? ' bk-own' : '');
+  if (text.css) { const st = document.createElement('style'); st.textContent = text.css; pg.appendChild(st); }
+  pg.appendChild(text);
   pg.insertAdjacentHTML('beforeend', `<div class="bk-end">${i < B.pages.length - 1 ? `Swipe for ${esc(bkName(i + 1))} ›` : 'The end'}</div>`);
   if (dir) { pg.style.transition = 'none'; pg.style.transform = `translateX(${dir * 100}%)`; }
   B.stage.appendChild(pg);
   const old = B.page; B.page = pg; B.ch = i;
-  bkSelHide();
+  if (B.edit) back(); // a highlight being changed lets go
   pg.blocks = bkBlocks(text); bkMarks();
   pg.addEventListener('scroll', bkScrolled, { passive: true });
   // pictures settle the page's height: place the reader once they have
@@ -4779,7 +4859,7 @@ function bkPaint() {
   const words = B.page.words || (B.page.words = (B.page.textContent.match(/\S+/g) || []).length);
   const min = Math.round(words * (1 - f) / 230); // about 230 words a minute
   const left = f > 0.995 ? 'End of chapter' : min < 1 ? 'Less than a minute left' : `${min} min left in chapter`;
-  $('.bk-prog', B.el).textContent = `${pct}% · ${left}`;
+  $('.bk-prog', B.el).textContent = `${pct}%`; // like Kindle's page: only how far through the book, bottom right (v46)
   $('.bk-pct', B.el).textContent = `${pct}%`; $('.bk-left', B.el).textContent = left;
   $('.bk-cname', B.el).textContent = bkName(B.ch);
   const tops = B.toc.filter(t => !t.lv).map(t => B.pages.findIndex(p => p.href === t.href)), n = tops.filter(i => i >= 0 && i <= B.ch).length;
@@ -4789,7 +4869,7 @@ function bkPaint() {
 }
 function bkScrolled() {
   const B = BK; if (!B) return;
-  bkPaint(); if (B.pick) bkSelPlace(); clearTimeout(B.saveT); B.saveT = setTimeout(bkSave, 800);
+  bkPaint(); if (B.edit) bkSelPlace(); clearTimeout(B.saveT); B.saveT = setTimeout(bkSave, 800);
 }
 function bkSave() {
   const B = BK; if (!B || !B.rec || !B.page) return;
@@ -4801,13 +4881,20 @@ function bkSave() {
 function bkShowUI(on) { const B = BK; if (!B) return; B.ui = on; B.el.classList.toggle('ui', on); if (on) bkPaint(); }
 function bkGestures() {
   const st = BK.stage; let g = null;
-  // words being picked (a selection, or a finger held down to start one) never turn the chapter or toggle the controls
-  const picking = () => { const s = getSelection(); return !!(s && !s.isCollapsed && BK && BK.page && BK.page.contains(s.anchorNode)); };
-  st.addEventListener('pointerdown', e => { if (!BK || e.button) return; g = { x: e.clientX, y: e.clientY, t: Date.now(), dx: 0, side: false, id: e.pointerId, sel: picking() || !!BK.pick || !!BK.strip }; });
+  // the page can't be selected (v46): a hold highlights the word instead, so the phone's own selection and its menu stay away
+  BK.el.addEventListener('contextmenu', e => e.preventDefault());
+  st.addEventListener('pointerdown', e => {
+    if (!BK || e.button || BK.drag) return;
+    const sel = !!BK.edit || !!BK.strip, x = e.clientX, y = e.clientY;
+    g = { x, y, t: Date.now(), dx: 0, side: false, id: e.pointerId, sel };
+    // a hold on a word (not on a highlight, a link or a picture) highlights it
+    if (!sel && !e.target.closest('mark.hl,a[data-to],a[data-out],img')) { const gg = g; gg.hold = setTimeout(() => { if (g === gg && !gg.side) { gg.held = true; bkHold(x, y); } }, 450); }
+  });
   st.addEventListener('pointermove', e => {
     if (!g || e.pointerId !== g.id || !BK.page) return;
     const dx = e.clientX - g.x, dy = e.clientY - g.y;
-    if (!g.side && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3 && !g.sel && Date.now() - g.t < 450 && !picking()) { g.side = true; BK.page.style.transition = 'none'; }
+    if (Math.hypot(dx, dy) > 10) clearTimeout(g.hold);
+    if (!g.side && !g.held && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3 && !g.sel && Date.now() - g.t < 450) { g.side = true; BK.page.style.transition = 'none'; }
     if (g.side) {
       const edge = (dx > 0 && BK.ch === 0) || (dx < 0 && BK.ch === BK.pages.length - 1);
       g.dx = edge ? dx / 4 : dx; BK.page.style.transform = `translateX(${g.dx}px)`;
@@ -4816,6 +4903,7 @@ function bkGestures() {
   const up = e => {
     if (!g || e.pointerId !== g.id) return;
     const B = BK, gg = g; g = null; if (!B || !B.page) return;
+    clearTimeout(gg.hold); if (gg.held) return;
     if (gg.side) {
       const v = gg.dx / Math.max(1, Date.now() - gg.t), next = gg.dx < 0 ? B.ch + 1 : B.ch - 1;
       if ((Math.abs(gg.dx) > 70 || Math.abs(v) > 0.5) && B.pages[next] && e.type === 'pointerup') { bkShowUI(false); bkShow(next, gg.dx < 0 ? 1 : -1, next < B.ch ? null : 0); }
@@ -4823,9 +4911,9 @@ function bkGestures() {
       return;
     }
     if (e.type !== 'pointerup' || Math.hypot(e.clientX - gg.x, e.clientY - gg.y) >= 10 || Date.now() - gg.t >= 400 || e.target.closest('a[data-to],a[data-out]')) return;
-    if (gg.sel) { if (B.strip || (B.pick && B.pick.held)) back(); return; } // a tap away from picked words (or the card strip) lets them go
+    if (gg.sel) { back(); return; } // a tap away from a highlight being changed (or the card strip) lets it go
     const m = e.target.closest('mark.hl');
-    if (m) { bkHlTap(m); return; }
+    if (m) { if (m.dataset.hl) bkEdit(m.dataset.hl); else bkHlTap(m); return; }
     bkShowUI(!B.ui);
   };
   st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
@@ -4876,7 +4964,11 @@ function bkMenu() {
 /* ---- text size, line spacing and margins (Aa) ---- */
 function bkApplyText() {
   const t = bkText(), el = BK && BK.el; if (!el) return;
-  el.style.setProperty('--bk-fs', t.s + 'px'); el.style.setProperty('--bk-lh', BK_LINES[t.l] || 1.72); el.style.setProperty('--bk-pad', (BK_MARGINS[t.m] || 24) + 'px');
+  const f = BK_FONTS[t.f] || BK_FONTS.literata;
+  document.documentElement.style.setProperty('--bk-font', f[0]); document.documentElement.style.setProperty('--bk-weight', f[1]);
+  document.documentElement.style.setProperty('--bk-fvs', f[2]);
+  el.style.setProperty('--bk-fs', t.s + 'px'); el.style.setProperty('--bk-lh', BK_LINES[t.l] || 1.33); el.style.setProperty('--bk-pad', (BK_MARGINS[t.m] || 29) + 'px');
+  el.classList.toggle('lh-book', !BK_LINES[t.l] || t.l === 'book');
 }
 function bkTextSheet() {
   const paint = () => {
@@ -4884,17 +4976,19 @@ function bkTextSheet() {
     $('.bk-n', sh).textContent = t.s;
     $$('[data-act^="l-"]', sh).forEach(b => b.classList.toggle('on', b.dataset.act === 'l-' + t.l));
     $$('[data-act^="m-"]', sh).forEach(b => b.classList.toggle('on', b.dataset.act === 'm-' + t.m));
+    $$('[data-act^="f-"]', sh).forEach(b => b.classList.toggle('on', b.dataset.act === 'f-' + t.f));
   };
   const set = ch => { const B = BK; if (!B) return; const f = bkFrac(); ls.set('book.text', JSON.stringify(Object.assign(bkText(), ch))); bkApplyText(); paint();
     if (B.page) B.page.scrollTop = f * Math.max(0, B.page.scrollHeight - B.page.clientHeight); bkPaint(); };
   const step = d => { const s = bkText().s, i = BK_SIZES.indexOf(s), j = Math.min(BK_SIZES.length - 1, Math.max(0, (i < 0 ? 3 : i) + d)); set({ s: BK_SIZES[j] }); };
   const pill = (k, v) => `<button class="bk-pill" data-act="${k}-${v}">${v[0].toUpperCase() + v.slice(1)}</button>`;
   sheet(`<div class="bkfont bk-tsheet"><h2>Text</h2>
+    <div class="bk-trow"><span>Font</span><div>${Object.keys(BK_FONTS).map(v => pill('f', v)).join('')}</div></div>
     <div class="bk-trow"><span>Size</span><div><button class="bk-pill sz" data-act="smaller" aria-label="Smaller">A</button><span class="bk-n num"></span><button class="bk-pill sz big" data-act="bigger" aria-label="Bigger">A</button></div></div>
     <div class="bk-trow"><span>Lines</span><div>${Object.keys(BK_LINES).map(v => pill('l', v)).join('')}</div></div>
     <div class="bk-trow"><span>Margins</span><div>${Object.keys(BK_MARGINS).map(v => pill('m', v)).join('')}</div></div></div>`,
     Object.assign({ smaller: () => step(-1), bigger: () => step(1) },
-      ...Object.keys(BK_LINES).map(v => ({ ['l-' + v]: () => set({ l: v }) })), ...Object.keys(BK_MARGINS).map(v => ({ ['m-' + v]: () => set({ m: v }) }))), paint);
+      ...Object.keys(BK_LINES).map(v => ({ ['l-' + v]: () => set({ l: v }) })), ...Object.keys(BK_FONTS).map(v => ({ ['f-' + v]: () => set({ f: v }) })), ...Object.keys(BK_MARGINS).map(v => ({ ['m-' + v]: () => set({ m: v }) }))), paint);
 }
 
 /* ---- the contents (C1): a page of their own over the book ---- */
@@ -5019,104 +5113,157 @@ function bkMarks() {
   const href = B.pages[B.ch].href, shown = new Set();
   for (const n of CN.recs.values()) {
     if (!n.book || n.src.key !== B.key || n.book.href !== href) continue;
-    const at = bkFind(pg, n.book); if (!at) continue;
+    const ed = B.edit && B.edit.id === n.id, at = ed ? [B.edit.g0, B.edit.g1] : bkFind(pg, n.book); if (!at) continue;
     const made = cnCardsOf(n.id); made.forEach(id => shown.add(id));
-    bkWrap(pg, at[0], at[1], 'hl ' + (made.length ? 'c' : 's'), { hl: n.id });
+    // in its own colour (v46); a card made from it adds a blue line under it
+    bkWrap(pg, at[0], at[1], 'hl s' + (made.length ? ' made' : '') + (ed ? ' ed' : ''), { hl: n.id }).forEach(m => m.style.setProperty('--hl', bkColor(n)));
   }
   for (const c of bkBookCards(B)) {
     if (shown.has(c.id)) continue;
     const at = bkCardAt(pg, c); if (at) bkWrap(pg, at[0], at[1], 'hl c', { card: c.id });
   }
-  if (B.pick && B.pick.held) bkWrap(pg, B.pick.g0, B.pick.g1, 'hl pend', {});
 }
 
-/* ---- A1: the bar under picked words ---- */
-let bkSelT = 0;
-const bkSelChange = () => { clearTimeout(bkSelT); bkSelT = setTimeout(bkSelCheck, 180); };
-function bkSelWatch(on) { document[on ? 'addEventListener' : 'removeEventListener']('selectionchange', bkSelChange); }
-function bkSelCheck() {
-  const B = BK; if (!B || !B.page || (B.pick && B.pick.held) || B.barBusy) return;
-  const s = getSelection(), pg = B.page;
-  if (!s || s.isCollapsed || !s.rangeCount || !pg.contains(s.anchorNode) || !pg.contains(s.focusNode)) { bkSelHide(); return; }
-  const r = s.getRangeAt(0), a = bkPoint(pg, r.startContainer, r.startOffset, false), z = bkPoint(pg, r.endContainer, r.endOffset, true);
-  if (!a || !z) { bkSelHide(); return; }
-  const F = bkFlat(pg); let g0 = F.starts[a.p] + a.o, g1 = F.starts[z.p] + z.o;
-  while (g0 < g1 && /\s/.test(F.text[g0])) g0++;
-  while (g1 > g0 && /\s/.test(F.text[g1 - 1])) g1--;
-  const exact = F.text.slice(g0, g1);
-  if (!exact || exact.length > 2000) { bkSelHide(); return; }
-  B.pick = { g0, g1, exact, text: exact.replace(/\s+/g, ' '), q: B.pick && B.pick.g0 === g0 && B.pick.g1 === g1 ? B.pick.q : '' };
-  bkSelShow();
-}
-function bkSelShow() {
-  const B = BK, bar = $('.bk-selbar', B.el), k = B.pick; if (!k) return;
-  bar.innerHTML = `<button class="on" data-sb="vocabulary">Vocabulary</button><button data-sb="concept">Concept</button><i></i>
-    <button class="q${k.q ? ' has' : ''}" data-sb="q">${k.q ? 'Question ✓' : '+ Question'}</button>`;
-  bar.hidden = false; bkSelPlace();
-}
-/* under the words, clear of the phone's own copy menu above them and its handles just below; above them near the bottom */
-function bkSelPlace() {
-  const B = BK, bar = $('.bk-selbar', B.el), k = B.pick; if (!k || bar.hidden) return;
-  let rc = null;
-  if (k.held) { const ms = $$('mark.pend', B.page); if (ms.length) { const a = ms[0].getBoundingClientRect(), z = ms[ms.length - 1].getBoundingClientRect(); rc = { top: a.top, bottom: z.bottom }; } }
-  else { const s = getSelection(); if (s && s.rangeCount) rc = s.getRangeAt(0).getBoundingClientRect(); }
-  if (!rc) return;
-  const st = B.stage.getBoundingClientRect(), h = bar.offsetHeight || 52;
-  let top = rc.bottom + 34;
-  if (top + h > st.bottom - 8) top = rc.top - h - 58;
-  bar.style.top = Math.round(Math.max(st.top + 4, Math.min(st.bottom - h - 8, top))) + 'px';
-}
-function bkSelHide() {
-  const B = BK; if (!B || (B.pick && B.pick.held)) return;
-  B.pick = null; const bar = $('.bk-selbar', B.el); if (bar) bar.hidden = true;
-}
-function bkSelBar() {
-  const B = BK, bar = $('.bk-selbar', B.el);
-  // tapping the bar can make the phone let go of the selection: the words were already taken when the bar showed
-  bar.addEventListener('pointerdown', e => { e.preventDefault(); B.barBusy = true; setTimeout(() => { B.barBusy = false; }, 900); });
-  bar.addEventListener('click', e => {
-    const b = e.target.closest('[data-sb]'); B.barBusy = false; if (!b || BK !== B || !B.pick) return;
-    if (b.dataset.sb === 'q') bkQuestion(); else bkNoteSave(b.dataset.sb);
-  });
-}
-/* + Question: the words stay marked while you type, then Vocabulary or Concept saves them with it */
-function bkQuestion() {
-  const B = BK, k = B.pick;
-  if (!k.held) {
-    k.held = true; getSelection().removeAllRanges(); bkMarks();
-    pushLayer(() => { if (BK !== B || B.pick !== k) return; k.held = false; B.pick = null; bkMarks(); $('.bk-selbar', B.el).hidden = true; });
+/* ---- highlights (v46): hold a word and it is highlighted at once, saved for a Define card; tap a highlight to stretch it over more
+   words with its two handles, make it Explain (a Concept card) instead, give it a colour or a question, or remove it ---- */
+const BK_COLORS = [['Yellow', '#F5C518'], ['Blue', '#4DA8FF'], ['Pink', '#FF6FAE'], ['Orange', '#FF9F40']]; // Kindle's four
+const bkColor = n => (n && n.book && /^#[0-9a-f]{6}$/i.test(n.book.color || '') ? n.book.color : BK_COLORS[0][1]);
+const BK_WORD = /[\p{L}\p{N}][\p{L}\p{N}'’\-]*/gu;
+// the word under a point: its text node and characters, found from the words' own boxes (the page can't be selected, so the
+// browser's caret lookups aren't relied on); with near, the nearest word on that line (for a handle being dragged)
+function bkWordAt(pg, x, y, near) {
+  let el = document.elementFromPoint(x, y), blk = null;
+  while (el && el !== pg && !(pg.blocks && pg.blocks.includes(el))) el = el.parentElement;
+  if (el && el !== pg) blk = el;
+  const pool = blk ? [blk] : near ? pg.blocks.filter(b => { const r = b.getBoundingClientRect(); return r.bottom > y - 40 && r.top < y + 40; }) : [];
+  let best = null, bd = Infinity;
+  for (const b of pool) {
+    const tw = document.createTreeWalker(b, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())) {
+      for (const m of n.nodeValue.matchAll(BK_WORD)) {
+        const r = document.createRange(); r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length);
+        for (const q of r.getClientRects()) {
+          const dy = y < q.top ? q.top - y : y > q.bottom ? y - q.bottom : 0, dx = x < q.left ? q.left - x : x > q.right ? x - q.right : 0;
+          if (!near && (dx > 2 || dy > 2)) continue;
+          const d = dy * 4 + dx; if (d < bd) { bd = d; best = { node: n, a: m.index, z: m.index + m[0].length }; }
+        }
+      }
+    }
   }
-  askSheet({ title: k.q ? 'Change the question' : 'Add a question', sub: esc(k.text.length > 80 ? k.text.slice(0, 78) + '…' : k.text), value: k.q, btn: 'Add', label: 'Question', empty: true, max: 300,
-    done: q => { k.q = q; closeSheet(); if (BK === B && B.pick === k) bkSelShow(); } });
+  return best;
+}
+const bkG = (pg, node, off) => { const p = bkPoint(pg, node, off, false); return p ? bkFlat(pg).starts[p.p] + p.o : null; };
+// where characters g0 to g1 sit, as saved with a note: paragraph and character, the words, and what comes just before and after
+function bkSpot(pg, g0, g1) {
+  const F = bkFlat(pg), a = bkAt(F, g0), z = bkAt(F, g1 - 1), lo = Math.max(0, a.p - 2), hi = Math.min(pg.blocks.length - 1, z.p + 2), exact = F.text.slice(g0, g1);
+  return { text: exact.replace(/\s+/g, ' ').trim(),
+    book: { p0: a.p, o0: a.o, p1: z.p, o1: z.o + 1, exact, prefix: F.text.slice(Math.max(0, g0 - 32), g0), suffix: F.text.slice(g1, g1 + 32),
+      paras: pg.blocks.slice(lo, hi + 1).map((b, j) => ({ p: lo + j, x: F.text.substr(F.starts[lo + j], F.lens[lo + j]) })) } };
 }
 const bkCover = B => B.coverT || (B.coverT = (async () => {
   const f = B.cover && B.zf(B.cover); if (!f) return null;
   const ext = B.cover.split('.').pop().toLowerCase();
   return makeThumb(new Blob([await f.async('arraybuffer')], { type: MIME[ext] || 'image/jpeg' }), 320);
 })().catch(() => null));
-async function bkNoteSave(kind) {
-  const B = BK, k = B && B.pick; if (!k || B.saving) return;
-  B.saving = true;
-  const pg = B.page, F = bkFlat(pg), a = bkAt(F, k.g0), z = bkAt(F, k.g1 - 1), lo = Math.max(0, a.p - 2), hi = Math.min(pg.blocks.length - 1, z.p + 2), now = Date.now();
-  const n = { id: 'cn-' + uid(), kind, createdAt: now, at: now, question: k.q || '', text: k.text,
+/* a hold on a word: highlighted and saved at once, for a Define card, in the last colour used */
+async function bkHold(x, y) {
+  const B = BK, pg = B && B.page; if (!pg || B.saving) return;
+  const w = bkWordAt(pg, x, y); if (!w) return;
+  const g0 = bkG(pg, w.node, w.a), g1 = bkG(pg, w.node, w.z); if (g0 == null || g1 == null || g1 <= g0) return;
+  B.saving = true; buzz();
+  const now = Date.now(), sp = bkSpot(pg, g0, g1);
+  const n = { id: 'cn-' + uid(), kind: 'vocabulary', createdAt: now, at: now, question: '', text: sp.text,
     src: { type: 'book', key: B.key, path: B.r.path, name: B.r.name, size: B.r.size, title: cnTitle(B.key) || B.title || cnTitleOf(B.r), author: B.author || '' },
-    book: { ch: B.ch, href: B.pages[B.ch].href, chapter: B.pages[B.ch].name || '', p0: a.p, o0: a.o, p1: z.p, o1: z.o + 1,
-      exact: k.exact, prefix: F.text.slice(Math.max(0, k.g0 - 32), k.g0), suffix: F.text.slice(k.g1, k.g1 + 32),
-      paras: pg.blocks.slice(lo, hi + 1).map((b, j) => ({ p: lo + j, x: F.text.substr(F.starts[lo + j], F.lens[lo + j]) })) } };
-  if (k.held) { k.held = false; back(); } // the words were held for a question
-  try { getSelection().removeAllRanges(); } catch {}
-  B.pick = null; $('.bk-selbar', B.el).hidden = true;
+    book: { ch: B.ch, href: B.pages[B.ch].href, chapter: B.pages[B.ch].name || '', ...sp.book, color: ls.get('book.hl') || BK_COLORS[0][1] } };
   await cnSave([n]);
-  const cov = await bkCover(B);
-  if (cov) await cstore.put('frames', [{ id: n.id, blob: cov }, { id: n.id + '-t', blob: cov }]).catch(storageFail);
   B.saving = false;
   if (BK !== B) return;
   bkMarks();
-  $$('.bk-toast', B.el).forEach(x => x.remove());
-  const t = document.createElement('div'); t.className = 'bk-toast';
-  t.innerHTML = `<span>Saved “${esc(n.text.length > 34 ? n.text.slice(0, 32) + '…' : n.text)}” for a card</span><button>Undo</button>`;
-  $('button', t).addEventListener('click', async () => { t.remove(); await cnDrop([n.id]); if (BK === B) bkMarks(); });
-  B.el.appendChild(t); setTimeout(() => t.remove(), 4500);
+  const cov = await bkCover(B);
+  if (cov) await cstore.put('frames', [{ id: n.id, blob: cov }, { id: n.id + '-t', blob: cov }]).catch(storageFail);
+}
+/* a tap on a highlight: its handles, and the bar under it */
+function bkEdit(id) {
+  const B = BK, n = CN.recs.get(id); if (!B || !n || B.edit) return;
+  const at = bkFind(B.page, n.book); if (!at) return;
+  B.edit = { id, g0: at[0], g1: at[1] };
+  bkMarks(); bkEditBar();
+  pushLayer(() => { if (BK !== B) return; B.edit = null; $$('.bk-hd', B.page).forEach(h => h.remove()); $('.bk-selbar', B.el).hidden = true; bkMarks(); });
+}
+function bkEditBar() {
+  const B = BK, k = B.edit, n = k && CN.recs.get(k.id), bar = $('.bk-selbar', B.el); if (!n) return;
+  const col = bkColor(n), made = cnCardsOf(n.id).length, own = !BK_COLORS.some(c => c[1].toLowerCase() === col.toLowerCase());
+  bar.innerHTML = `<div class="r"><button class="${n.kind === 'concept' ? '' : 'on'}" data-sb="vocabulary">Define</button><button class="${n.kind === 'concept' ? 'on' : ''}" data-sb="concept">Explain</button><i></i>
+      <button class="q${n.question ? ' has' : ''}" data-sb="q">${n.question ? 'Question ✓' : '+ Question'}</button>${made ? '<button class="q has" data-sb="card">Card</button>' : ''}
+      <button class="rm" data-sb="rm" aria-label="Remove highlight">${ICON.trash}</button></div>
+    <div class="r cols">${BK_COLORS.map(([nm, c]) => `<button class="dot${c.toLowerCase() === col.toLowerCase() ? ' on' : ''}" data-sb="col" data-c="${c}" aria-label="${nm}" style="--c:${c}"></button>`).join('')}
+      <label class="dot any${own ? ' on' : ''}" aria-label="Any colour" style="--c:${own ? col : 'transparent'}"><input type="color" value="${col}"></label></div>`;
+  bar.hidden = false; bkHandles(); bkSelPlace();
+}
+// the two handles: drop shapes at the start and the end of the highlight, scrolled with the page
+function bkHandles() {
+  const B = BK, pg = B.page, ms = $$('mark.hl.ed', pg); $$('.bk-hd', pg).forEach(h => h.remove());
+  if (!ms.length || !B.edit) return;
+  const pr = pg.getBoundingClientRect(), a = ms[0].getClientRects()[0], z = [...ms[ms.length - 1].getClientRects()].pop(); if (!a || !z) return;
+  for (const [k, q, x] of [['s', a, a.left], ['e', z, z.right]]) {
+    const h = document.createElement('div'); h.className = 'bk-hd ' + k; h.dataset.hd = k;
+    h.style.left = (x - pr.left + pg.scrollLeft) + 'px'; h.style.top = (q.bottom - pr.top + pg.scrollTop) + 'px';
+    pg.appendChild(h);
+  }
+}
+async function bkEditSave(ch) {
+  const B = BK, k = B && B.edit, n = k && CN.recs.get(k.id); if (!n) return;
+  await cnSave([{ ...n, ...ch, book: { ...n.book, ...(ch.book || {}) }, at: Date.now() }]);
+  if (BK !== B || !B.edit) return;
+  bkMarks(); bkEditBar();
+}
+function bkSelBar() {
+  const B = BK, bar = $('.bk-selbar', B.el);
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('[data-sb]'), k = B.edit, n = k && CN.recs.get(k.id); if (!b || BK !== B || !n) return;
+    const s = b.dataset.sb;
+    if (s === 'vocabulary' || s === 'concept') { if (n.kind !== s) bkEditSave({ kind: s }); }
+    else if (s === 'col') { ls.set('book.hl', b.dataset.c); bkEditSave({ book: { color: b.dataset.c } }); }
+    else if (s === 'q') askSheet({ title: n.question ? 'Change the question' : 'Add a question', sub: esc(n.text.length > 80 ? n.text.slice(0, 78) + '…' : n.text), value: n.question,
+      btn: 'Add', label: 'Question', empty: true, max: 300, done: q => { closeSheet(); bkEditSave({ question: q }); } });
+    else if (s === 'card') { const c = cards.find(x => x.id === cnCardsOf(n.id)[0]); if (c) back(() => bkOpenCard(c)); }
+    else if (s === 'rm') back(async () => { await cnDrop([n.id]); if (BK === B) bkMarks(); toast('Highlight removed'); });
+  });
+  bar.addEventListener('input', e => { // any colour: the highlight follows the picker as it moves, saved when it is let go
+    if (!e.target.matches('input[type=color]') || !B.edit) return;
+    $$('mark.hl.ed', B.page).forEach(m => m.style.setProperty('--hl', e.target.value));
+  });
+  bar.addEventListener('change', e => {
+    if (!e.target.matches('input[type=color]') || !B.edit) return;
+    ls.set('book.hl', e.target.value); bkEditSave({ book: { color: e.target.value } });
+  });
+  // dragging a handle moves that end of the highlight a word at a time, across paragraphs too
+  B.stage.addEventListener('pointerdown', e => {
+    const h = e.target.closest('.bk-hd'); if (!h || !B.edit) return;
+    e.preventDefault(); e.stopPropagation(); try { h.setPointerCapture(e.pointerId); } catch {} B.drag = h.dataset.hd; bar.hidden = true;
+  }, true);
+  B.stage.addEventListener('pointermove', e => {
+    const k = B.edit; if (!B.drag || !k) return;
+    const pg = B.page, w = bkWordAt(pg, e.clientX, e.clientY - 26, true); if (!w) return;
+    const a = bkG(pg, w.node, w.a), z = bkG(pg, w.node, w.z); if (a == null || z == null) return;
+    if (B.drag === 's') k.g0 = Math.min(a, k.g1 - 1); else k.g1 = Math.max(z, k.g0 + 1);
+    if (k.g1 - k.g0 > 2000) return;
+    bkMarks(); bkHandles();
+  });
+  const up = () => {
+    const k = B.edit; if (!B.drag || !k) return; B.drag = null;
+    const sp = bkSpot(B.page, k.g0, k.g1); bkEditSave({ text: sp.text, book: sp.book });
+  };
+  B.stage.addEventListener('pointerup', up); B.stage.addEventListener('pointercancel', up);
+}
+/* the bar under the highlight; above it near the bottom of the screen */
+function bkSelPlace() {
+  const B = BK, bar = $('.bk-selbar', B.el); if (!B.edit || bar.hidden) return;
+  const ms = $$('mark.hl.ed', B.page); if (!ms.length) return;
+  const a = ms[0].getBoundingClientRect(), z = ms[ms.length - 1].getBoundingClientRect(), st = B.stage.getBoundingClientRect(), h = bar.offsetHeight || 100;
+  let top = z.bottom + 30;
+  if (top + h > st.bottom - 8) top = a.top - h - 14;
+  bar.style.top = Math.round(Math.max(st.top + 4, Math.min(st.bottom - h - 8, top))) + 'px';
 }
 
 /* ---- C1: a highlight's card in a strip at the bottom ---- */
@@ -6458,7 +6605,7 @@ async function importCardNotes(list, frameOf) {
         src: { type: 'book', key: String(x.src.key || ''), path: String(x.src.path || ''), name: String(x.src.name || ''), size: +x.src.size || 0, title: String(x.src.title || ''), author: String(x.src.author || '') },
         book: { ch: num(b.ch), href: String(b.href), chapter: String(b.chapter || ''), p0: num(b.p0), o0: num(b.o0), p1: num(b.p1), o1: num(b.o1),
           exact: b.exact, prefix: String(b.prefix || ''), suffix: String(b.suffix || ''),
-          paras: Array.isArray(b.paras) ? b.paras.filter(q => q).map(q => ({ p: num(q.p), x: String(q.x || '') })) : [] } };
+          paras: Array.isArray(b.paras) ? b.paras.filter(q => q).map(q => ({ p: num(q.p), x: String(q.x || '') })) : [], ...(/^#[0-9a-f]{6}$/i.test(b.color || '') ? { color: b.color } : {}) } };
     }
     if (!n && (!Array.isArray(x.lines) || !x.lines.length)) continue;
     if (!n) {

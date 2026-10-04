@@ -50,11 +50,13 @@ def main():
     files = {}
     files['OEBPS/images/cover.jpg'] = picture(600, 900, 1)
     files['OEBPS/images/harbour.jpg'] = picture(900, 500, 2)
-    files['OEBPS/css/book.css'] = 'body { font-family: "Comic Sans MS"; background: yellow; } .x { color: green; }'
+    # what a reader keeps (v46): the class's indent, alignment and the heading's colour; never the font, the background or plain text's colour
+    files['OEBPS/css/book.css'] = ('body { font-family: "Comic Sans MS"; background: yellow; } p { color: green; } '
+                                   '.x { text-indent: 1.5em; margin: 0; text-align: justify; } .ch { color: #e31836; text-align: center; } .ch a { color: url(x); }')
     files['OEBPS/text/cover.xhtml'] = page('Cover', '<div class="cover"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 900">'
                                           '<image width="600" height="900" xlink:href="../images/cover.jpg"/></svg></div>')
     for i, name in enumerate(CHAPTERS, 1):
-        body = f'<h1 id="c{i}">Chapter {i}<br/>{name}</h1>'
+        body = f'<h1 class="ch" id="c{i}">Chapter {i}<br/>{name}</h1>'
         n = 9 if i != 4 else 3  # chapter 4 is short, so it fits on one screen
         for k in range(n):
             p = para(rng, 5)
