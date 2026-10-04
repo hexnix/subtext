@@ -1,10 +1,10 @@
-"""Notes and highlights in books (v45): the made-up book in a made-up My Files, on a phone held upright (412×915).
+"""Notes and highlights in books (v45, v46): the made-up book in a made-up My Files, on a phone held upright (412×915).
 
     python3 tools/app-test/test_booknotes.py . --out shots/booknotes/
 
-Checks picking words (the phone's own selection) showing the bar under them (A1), Vocabulary saving them with where they sit,
-Undo, + Question then Concept, a pick across two paragraphs, a picked word never turning the chapter, the white underline (B1), a
-tap on it showing the strip with Remove, a card made from the words (fromNote) turning them blue, a card of this book found on its
+Checks (v46) a hold on a word highlighting it at once for a Define card, a tap on it showing two handles and the bar, dragging
+the handles over the phrase, Explain, the colours and any shade, + Question, a highlight across two paragraphs, Remove, Back, a
+card made from the words (fromNote) adding a blue line, a card of this book found on its
 page by its scene's paragraph, a tap showing its card (C1), Open card above the book and Back to it, the For cards tile and rows
 for the book, Read from here, the zip for the card chat, the backup on a fresh phone, re-imports, and JavaScript errors.
 Everything is invented: never put real books or cards in the repo.
@@ -20,6 +20,21 @@ from PIL import Image
 PICK = """([p, a, b, p2]) => { const pg = T.BK.page, bs = pg.blocks, at = (blk, o) => { const tw = document.createTreeWalker(blk, NodeFilter.SHOW_TEXT); let n, s = 0;
     while ((n = tw.nextNode())) { if (s + n.nodeValue.length >= o) return [n, o - s]; s += n.nodeValue.length; } return [n, 0]; };
   const x = at(bs[p], a), y = at(bs[p2 == null ? p : p2], b); getSelection().setBaseAndExtent(x[0], x[1], y[0], y[1]); return getSelection().toString(); }"""
+# the middle of the word at character o of the chapter's paragraph p (scrolled into view)
+WORD_XY = """([p, o]) => { const blk = T.BK.page.blocks[p]; const tw = document.createTreeWalker(blk, NodeFilter.SHOW_TEXT); let n, s = 0;
+  while ((n = tw.nextNode())) { if (s + n.nodeValue.length > o) break; s += n.nodeValue.length; }
+  const r = document.createRange(); r.setStart(n, o - s); r.setEnd(n, o - s + 1); let q = r.getBoundingClientRect();
+  if (q.top < 80 || q.bottom > innerHeight - 80) { T.BK.page.scrollTop += q.top - innerHeight / 2; q = r.getBoundingClientRect(); }
+  return [q.left + q.width / 2, q.top + q.height / 2]; }"""
+# a finger held on a point for 600 ms
+HOLD = """([x, y]) => new Promise(res => { const t = document.elementFromPoint(x, y), o = {pointerId: 9, pointerType: 'touch', isPrimary: true, bubbles: true, clientX: x, clientY: y};
+  t.dispatchEvent(new PointerEvent('pointerdown', o)); setTimeout(() => { t.dispatchEvent(new PointerEvent('pointerup', o)); res(); }, 600); })"""
+# drag a handle ('s' or 'e') so the finger's point (26 px under the text) lands on (x, y)
+DRAG = """([k, [x, y]]) => new Promise(res => { const h = document.querySelector('.bk-hd.' + k), r = h.getBoundingClientRect(), st = document.querySelector('.bk-stage');
+  const o = (cx, cy) => ({pointerId: 11, pointerType: 'touch', isPrimary: true, bubbles: true, clientX: cx, clientY: cy});
+  const x0 = r.left + r.width / 2, y0 = r.top + r.height / 2; h.dispatchEvent(new PointerEvent('pointerdown', o(x0, y0)));
+  let i = 0; const f = () => { i++; const cx = x0 + (x - x0) * i / 8, cy = y0 + (y + 26 - y0) * i / 8; st.dispatchEvent(new PointerEvent('pointermove', o(cx, cy)));
+    if (i < 8) setTimeout(f, 20); else { st.dispatchEvent(new PointerEvent('pointerup', o(cx, cy))); res(); } }; setTimeout(f, 20); })"""
 TAP = """(sel) => { const m = document.querySelector(sel); m.scrollIntoView({block: 'center'}); const r = m.getClientRects()[0], x = r.left + r.width / 2, y = r.top + r.height / 2;
   const t = document.elementFromPoint(x, y), o = {pointerId: 5, pointerType: 'touch', isPrimary: true, bubbles: true, clientX: x, clientY: y};
   t.dispatchEvent(new PointerEvent('pointerdown', o)); t.dispatchEvent(new PointerEvent('pointerup', o)); t.dispatchEvent(new MouseEvent('click', {bubbles: true, clientX: x, clientY: y})); return t.outerHTML.slice(0, 80); }"""
@@ -67,70 +82,78 @@ async def main(app, out):
         check(ch == 3 and mp > 0 and ma > 0, f'the chapter with the pencilled line is open ({info[:4]})')
         await pg.evaluate(f"T.BK.page.scrollTop = T.BK.page.blocks[{mp}].offsetTop - 120"); await pg.wait_for_timeout(300)
 
-        # A1: picking words shows the bar under them
-        got = await pg.evaluate(PICK, [mp, ma, ma + len(phrase), None]); await pg.wait_for_timeout(500)
-        bar = await pg.evaluate("""(() => { const b = document.querySelector('.bk-selbar'), r = b.getBoundingClientRect(), s = getSelection().getRangeAt(0).getBoundingClientRect();
-          return [b.hidden, b.textContent.replace(/\\s+/g, ' ').trim(), Math.round(r.top - s.bottom), getComputedStyle(b.querySelector('button')).fontFamily]; })()""")
-        check(got == phrase and not bar[0] and 'Vocabulary' in bar[1] and 'Concept' in bar[1] and '+ Question' in bar[1], f'picking words shows Vocabulary, Concept and + Question ({bar[:2]})')
-        check(bar[2] > 20 and 'Merriweather' in bar[3], f'the bar sits under the words, clear of the phone\'s handles, in Merriweather ({bar[2]} px)')
-        await ph.shot(f'{out}/01-picked-bar.png')
-
-        # a sideways drag while words are picked doesn't turn the chapter
-        await pg.evaluate(SWIPE, [-260]); await pg.wait_for_timeout(700)
-        check(await pg.evaluate("T.BK.ch") == 3, 'a drag while words are picked never turns the chapter')
-        await pg.evaluate(PICK, [mp, ma, ma + len(phrase), None]); await pg.wait_for_timeout(500)
-
-        # Vocabulary: saved with where it sits, a white underline, Undo
-        await pg.locator('.bk-selbar [data-sb=vocabulary]').click(); await pg.wait_for_timeout(700)
+        # v46: holding a word highlights it at once, saved for a Define card
+        hold_at = lambda p, o: pg.evaluate(WORD_XY, [p, o])
+        xy = await hold_at(mp, ma + 4)
+        await pg.evaluate(HOLD, xy); await pg.wait_for_timeout(900)
         n = await pg.evaluate("""(() => { const n = [...T.CN.recs.values()].find(x => x.book); const m = [...document.querySelectorAll('mark.hl')];
-          return [n && n.kind, n && n.text, n && n.src.type, n && n.src.title, n && n.book.chapter, n && n.book.p0, n && n.book.o0, n && n.book.o1, n && n.book.prefix.length, n && n.book.paras.length,
-            m.map(x => x.className).join(','), m.map(x => x.textContent).join(''), getSelection().isCollapsed, document.querySelector('.bk-selbar').hidden,
-            document.querySelector('.bk-toast') && document.querySelector('.bk-toast').textContent, getComputedStyle(m[0]).textDecorationLine]; })()""")
-        print('  saved:', n)
-        check(n[:5] == ['vocabulary', phrase, 'book', 'The Salt Ledger', 'The Harbour Office'] and n[5] == mp and n[6] == ma and n[7] == ma + len(phrase), 'Vocabulary saves the words with the book, chapter, paragraph and characters')
-        check(n[8] == 32 and n[9] >= 3, 'the words before and after, and the paragraphs around, are kept')
-        check('hl s' in n[10] and n[11] == phrase and n[15] == 'underline', 'the saved words get a white underline (B1)')
-        check(n[12] and n[13] and n[14] and 'Undo' in n[14], 'the selection and bar go, and a toast offers Undo')
-        await ph.shot(f'{out}/02-saved-underline.png')
-        await pg.locator('.bk-toast button').click(); await pg.wait_for_timeout(500)
-        u = await pg.evaluate("[[...T.CN.recs.values()].filter(x => x.book).length, document.querySelectorAll('mark.hl').length]")
-        check(u == [0, 0], f'Undo takes them back off ({u})')
-
-        # + Question, then Concept
-        await pg.evaluate(PICK, [mp, ma, ma + len(phrase), None]); await pg.wait_for_timeout(500)
-        await pg.locator('.bk-selbar [data-sb=q]').click(); await pg.wait_for_timeout(600)
-        q = await pg.evaluate("[!!document.querySelector('#sheet.open, .sheet.open, #askIn'), document.querySelectorAll('mark.hl.pend').length]")
-        await ph.shot(f'{out}/03-question.png')
-        await pg.fill('#askIn', 'Why is there no date?'); await pg.press('#askIn', 'Enter'); await pg.wait_for_timeout(600)
-        qb = await pg.evaluate("[document.querySelector('.bk-selbar').hidden, document.querySelector('.bk-selbar [data-sb=q]').textContent, document.querySelectorAll('mark.hl.pend').length]")
-        check(q[0] and q[1] > 0 and qb == [False, 'Question ✓', q[1]], f'+ Question asks, the words stay marked and the bar comes back ({q}, {qb})')
-        await ph.shot(f'{out}/04-question-added.png')
-        await pg.locator('.bk-selbar [data-sb=concept]').click(); await pg.wait_for_timeout(900)
-        c = await pg.evaluate("""(() => { const n = [...T.CN.recs.values()].find(x => x.book); return [n && n.kind, n && n.question, document.querySelectorAll('mark.hl.pend').length,
-          document.querySelectorAll('mark.hl.s').length, history.state && history.state.agora, T.pages.length]; })()""")
+          return [n && n.kind, n && n.text, n && n.src.type, n && n.src.title, n && n.book.chapter, n && n.book.p0, n && n.book.o0, n && n.book.color,
+            m.map(x => x.className).join(','), m[0] ? getComputedStyle(m[0]).backgroundColor : '', getSelection().isCollapsed, document.querySelector('.bk-selbar').hidden, T.BK.ui]; })()""")
+        print('  held:', n)
+        check(n[:7] == ['vocabulary', 'Marigold', 'book', 'The Salt Ledger', 'The Harbour Office', mp, ma + 4], 'holding a word saves it for a Define card, with the book, chapter, paragraph and characters')
+        check(n[7] == '#F5C518' and 'hl s' in n[8] and '0.96' in n[9] or '245, 197' in n[9], f'it is highlighted at once in yellow ({n[9]})')
+        check(n[10] and n[11] and n[12] is False, 'no selection, no bar and no controls come up')
         note_id = await pg.evaluate("[...T.CN.recs.values()].find(x => x.book).id")
-        check(c[:4] == ['concept', 'Why is there no date?', 0, c[3]] and c[3] > 0, f'Concept saves them with the question ({c})')
+        await ph.shot(f'{out}/01-held-highlight.png')
 
-        # a pick across two paragraphs
+
+        # a tap on the highlight: its two handles and the bar
+        await pg.evaluate(TAP, [f'mark.hl.s[data-hl="{note_id}"]']); await pg.wait_for_timeout(500)
+        e = await pg.evaluate("""(() => { const b = document.querySelector('.bk-selbar'); return [b.hidden, b.textContent.replace(/\\s+/g, ' ').trim(), document.querySelectorAll('.bk-hd').length,
+          document.querySelectorAll('.bk-selbar .dot').length, document.querySelector('.bk-selbar [data-sb=vocabulary]').classList.contains('on')]; })()""")
+        check(not e[0] and 'Define' in e[1] and 'Explain' in e[1] and '+ Question' in e[1] and e[2] == 2 and e[3] == 5 and e[4], f'a tap on it shows two handles and Define (on), Explain, + Question, the colours ({e})')
+        await ph.shot(f'{out}/02-edit.png')
+
+        # drag the handles out to the whole phrase
+        st = await hold_at(mp, ma); en = await hold_at(mp, ma + len(phrase) - 2)
+        await pg.evaluate(DRAG, ['s', st]); await pg.wait_for_timeout(500)
+        await pg.evaluate(DRAG, ['e', en]); await pg.wait_for_timeout(700)
+        d = await pg.evaluate(f"""(() => {{ const n = T.CN.recs.get('{note_id}'); return [n.text, n.book.o0, n.book.o1, [...document.querySelectorAll('mark.hl.ed')].map(m => m.textContent).join(''), document.querySelectorAll('.bk-hd').length]; }})()""")
+        check(d[0] == phrase and d[1] == ma and d[2] == ma + len(phrase) and d[3] == phrase and d[4] == 2, f'dragging the handles stretches it a word at a time ({d})')
+        await ph.shot(f'{out}/03-stretched.png')
+
+        # Explain, a colour, a question
+        await pg.locator('.bk-selbar [data-sb=concept]').click(); await pg.wait_for_timeout(500)
+        await pg.locator('.bk-selbar [data-c="#4DA8FF"]').click(); await pg.wait_for_timeout(500)
+        await pg.locator('.bk-selbar [data-sb=q]').click(); await pg.wait_for_timeout(600)
+        await pg.fill('#askIn', 'Why is there no date?'); await pg.press('#askIn', 'Enter'); await pg.wait_for_timeout(700)
+        c = await pg.evaluate(f"""(() => {{ const n = T.CN.recs.get('{note_id}'), m = document.querySelector('mark.hl.ed');
+          return [n.kind, n.book.color, n.question, m && m.style.getPropertyValue('--hl'), document.querySelector('.bk-selbar [data-sb=q]').textContent, document.querySelector('.bk-selbar').hidden,
+            document.querySelector('.bk-selbar [data-c="#4DA8FF"]').classList.contains('on'), localStorage.getItem('agora.book.hl')]; }})()""")
+        check(c[:4] == ['concept', '#4DA8FF', 'Why is there no date?', '#4DA8FF'] and c[4] == 'Question ✓' and not c[5] and c[6], f'Explain, a colour and a question are saved, the bar stays ({c})')
+        check(c[7] == '#4DA8FF', 'the colour picked is the one the next highlight gets')
+        await ph.shot(f'{out}/04-explain-blue-question.png')
+        # any colour: the picker's own value
+        await pg.evaluate("(() => { const i = document.querySelector('.bk-selbar input[type=color]'); i.value = '#a0e000'; i.dispatchEvent(new Event('input', {bubbles: true})); i.dispatchEvent(new Event('change', {bubbles: true})); })()")
+        await pg.wait_for_timeout(500)
+        anyc = await pg.evaluate(f"[T.CN.recs.get('{note_id}').book.color, document.querySelector('.bk-selbar .dot.any').classList.contains('on')]")
+        check(anyc == ['#a0e000', True], f'any shade from the colour picker ({anyc})')
+        await pg.locator('.bk-selbar [data-c="#4DA8FF"]').click(); await pg.wait_for_timeout(400)
+        await ph.back(); await pg.wait_for_timeout(400)
+        check(await pg.evaluate("document.querySelector('.bk-selbar').hidden && !document.querySelector('.bk-hd') && !T.BK.edit && !!T.BK"), 'Back lets go of the highlight and stays in the book')
+
+        # a highlight across two paragraphs
         lo = next(i for i in range(nblocks - 1) if abs(i - mp) > 1 and len(texts[i]) > 100 and len(texts[i + 1]) > 100); hi = lo + 1
         a0 = texts[lo].rfind(' ', 0, len(texts[lo]) - 30) + 1; b0 = texts[hi].find(' ', 20)
         await pg.evaluate(f"T.BK.page.scrollTop = T.BK.page.blocks[{lo}].offsetTop - 160"); await pg.wait_for_timeout(300)
-        await pg.evaluate(PICK, [lo, a0, b0, hi]); await pg.wait_for_timeout(500)
-        await pg.locator('.bk-selbar [data-sb=vocabulary]').click(); await pg.wait_for_timeout(800)
-        x2 = await pg.evaluate(f"""(() => {{ const n = [...T.CN.recs.values()].filter(x => x.book).sort((a, b) => b.createdAt - a.createdAt)[0];
-          const ms = [...document.querySelectorAll('mark.hl.s')].filter(m => m.dataset.hl === n.id); return [n.book.p0, n.book.p1, new Set(ms.map(m => T.BK.page.blocks.findIndex(b => b.contains(m)))).size, n.text]; }})()""")
-        check(x2[0] == lo and x2[1] == hi and x2[2] == 2, f'words picked across two paragraphs are saved and underlined in both ({x2[:3]})')
+        await pg.evaluate(HOLD, await hold_at(lo, a0)); await pg.wait_for_timeout(900)
+        nid2 = await pg.evaluate("[...T.CN.recs.values()].filter(x => x.book).sort((a, b) => b.createdAt - a.createdAt)[0].id")
+        await pg.evaluate(TAP, [f'mark.hl.s[data-hl="{nid2}"]']); await pg.wait_for_timeout(500)
+        await pg.evaluate(DRAG, ['e', await hold_at(hi, b0 - 2)]); await pg.wait_for_timeout(700)
+        x2 = await pg.evaluate(f"""(() => {{ const n = T.CN.recs.get('{nid2}');
+          const ms = [...document.querySelectorAll('mark.hl.s')].filter(m => m.dataset.hl === n.id); return [n.book.p0, n.book.p1, new Set(ms.map(m => T.BK.page.blocks.findIndex(b => b.contains(m)))).size, n.text, n.book.color]; }})()""")
+        check(x2[0] == lo and x2[1] == hi and x2[2] == 2 and x2[4] == '#4DA8FF', f'a highlight stretched across two paragraphs is saved in both, in the last colour ({x2})')
         await ph.shot(f'{out}/05-two-paragraphs.png')
+        await ph.back(); await pg.wait_for_timeout(300)
 
-        # a tap on the underline: the strip, with Remove; Back closes it
-        await pg.evaluate("document.querySelectorAll('.bk-toast').forEach(t => t.remove())")
-        await pg.evaluate(TAP, [f'mark.hl.s[data-hl="{note_id}"]']); await pg.wait_for_timeout(400)
-        s = await pg.evaluate("document.querySelector('.bk-strip') && document.querySelector('.bk-strip').textContent.replace(/\\s+/g, ' ')")
-        check(s and 'Saved for a Concept card' in s and 'Remove' in s and 'no date' in s, f'a tap on saved words shows them with Remove ({s})')
-        await ph.shot(f'{out}/06-strip-saved.png')
-        await ph.back()
-        check(await pg.evaluate("!document.querySelector('.bk-strip') && !!T.BK"), 'Back closes the strip and stays in the book')
-        check(await pg.evaluate("T.BK.ui") is False, 'a tap on a highlight doesn\'t bring up the controls')
+        # Remove
+        await pg.evaluate(HOLD, await hold_at(hi, texts[hi].find(' ', 60) + 1)); await pg.wait_for_timeout(900)
+        nid3 = await pg.evaluate("[...T.CN.recs.values()].filter(x => x.book).sort((a, b) => b.createdAt - a.createdAt)[0].id")
+        await pg.evaluate(TAP, [f'mark.hl.s[data-hl="{nid3}"]']); await pg.wait_for_timeout(500)
+        await pg.locator('.bk-selbar [data-sb=rm]').click(); await pg.wait_for_timeout(700)
+        rm = await pg.evaluate(f"[T.CN.recs.has('{nid3}'), document.querySelectorAll('mark.hl[data-hl=\"{nid3}\"]').length, document.querySelector('.bk-selbar').hidden, [...T.CN.recs.values()].filter(x => x.book).length]")
+        check(rm == [False, 0, True, 2], f'Remove takes a highlight away ({rm})')
+        check(await pg.evaluate("T.BK.ui") is False, 'taps on highlights never bring up the controls')
 
         # close, import a card made from the words (fromNote) and a card of this book found by its paragraph
         cp = next(i for i, t in enumerate(texts) if i not in (mp, lo, hi) and len(t) > 200 and ' ledger ' in t.lower())
@@ -145,13 +168,13 @@ async def main(app, out):
              'sceneText': {'paras': [scene]}, 'tags': ['Book', 'The Salt Ledger']}])
         t = await ph.imp([zp]); print('  import:', t)
         await open_book()
-        blue = await pg.evaluate(f"""(() => {{ const a = [...document.querySelectorAll('mark.hl.c[data-hl="{note_id}"]')], b = [...document.querySelectorAll('mark.hl.c[data-card="test-book-ledger"]')];
+        blue = await pg.evaluate(f"""(() => {{ const a = [...document.querySelectorAll('mark.hl.s.made[data-hl="{note_id}"]')], b = [...document.querySelectorAll('mark.hl.c[data-card="test-book-ledger"]')];
           return [T.BK.ch, a.map(m => m.textContent).join(''), b.map(m => m.textContent).join(''), b[0] ? T.BK.page.blocks.findIndex(x => x.contains(b[0])) : -1,
-            a[0] ? getComputedStyle(a[0]).backgroundColor : '']; }})()""")
+            b[0] ? getComputedStyle(b[0]).backgroundColor : '', a[0] ? getComputedStyle(a[0]).textDecorationLine : '']; }})()""")
         print('  blue:', blue)
-        check(blue[0] == 3 and blue[1] == phrase, 'words a card was made from turn blue (B1)')
+        check(blue[0] == 3 and blue[1] == phrase and blue[5] == 'underline', 'words a card was made from keep their colour and get a blue line under them')
         check(blue[2].lower() == 'ledger' and blue[3] == cp, 'a card of this book shows on its page, found by its scene\'s paragraph')
-        check('0, 134, 255' in blue[4], 'the blue is the soft blue fill')
+        check('0, 134, 255' in blue[4], 'a card of the book has the soft blue fill')
         await pg.evaluate(f"T.BK.page.scrollTop = T.BK.page.blocks[{cp}].offsetTop - 200"); await pg.wait_for_timeout(300)
         await ph.shot(f'{out}/07-blue-highlights.png')
 
@@ -191,7 +214,7 @@ async def main(app, out):
         check('Read from here' in sh and 'Play from here' not in sh, 'a row\'s menu offers Read from here')
         await pg.locator('#sheet [data-act=play]').click()
         await pg.wait_for_function("T.BK && T.BK.page && !document.querySelector('.bk-wait')", timeout=15000); await pg.wait_for_timeout(500)
-        rd = await pg.evaluate(f"""(() => {{ const b = T.BK.page.blocks[{mp}].getBoundingClientRect(); return [T.BK.ch, b.top > 0 && b.bottom < innerHeight, !!document.querySelector('mark.hl.c')]; }})()""")
+        rd = await pg.evaluate(f"""(() => {{ const b = T.BK.page.blocks[{mp}].getBoundingClientRect(); return [T.BK.ch, b.top > 0 && b.bottom < innerHeight, !!document.querySelector('mark.hl.made')]; }})()""")
         check(rd == [3, True, True], f'Read from here opens the book at those words ({rd})')
         await ph.shot(f'{out}/12-read-from-here.png')
         await ph.back()

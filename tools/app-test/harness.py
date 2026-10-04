@@ -58,6 +58,8 @@ def _fonts_css(port):
     css = ''.join(f"@font-face{{font-family:'IBM Plex Mono';font-style:{s};font-weight:{w};src:url({u}{f}.woff2) format('woff2');}}" for s, w, f in faces)
     for s in ('normal', 'italic'):  # one variable file stands in for light/bold and italic
         css += f"@font-face{{font-family:'Merriweather';font-style:{s};font-weight:300 700;src:url({u}merri.woff2) format('woff2');}}"
+    for s, f in (('normal', 'literata'), ('italic', 'literata-italic')):  # Literata, the book reader's font (v46)
+        css += f"@font-face{{font-family:'Literata';font-style:{s};font-weight:200 900;src:url({u}{f}.woff2) format('woff2');}}"
     return css
 
 
@@ -105,7 +107,7 @@ class Phone:
                                # Bookmarks (v30)
                                "get BM(){return BM},get openMarks(){return openMarks},"
                                # the video player (v37)
-                               "get BK(){return BK},get openBook(){return openBook},get bkstore(){return bkstore},get bkMarks(){return bkMarks},get cnMenu(){return cnMenu},get PL(){return PL},get openPlayer(){return openPlayer},get mstore(){return mstore},get mkvInfo(){return mkvInfo},get mkvScan(){return mkvScan},get parseSubFile(){return parseSubFile},get fileOf(){return fileOf},get CN(){return CN},get cstore(){return cstore},get cnZip(){return cnZip},get cnGroups(){return cnGroups},get openCardNotes(){return openCardNotes},get importCardNotes(){return importCardNotes},get exportCardNotes(){return exportCardNotes},get loadZip(){return loadZip},get exportAll(){return exportAll},"
+                               "get BK(){return BK},get openBook(){return openBook},get bkShow(){return bkShow},get bkChapter(){return bkChapter},get bkstore(){return bkstore},get bkMarks(){return bkMarks},get cnMenu(){return cnMenu},get PL(){return PL},get openPlayer(){return openPlayer},get mstore(){return mstore},get mkvInfo(){return mkvInfo},get mkvScan(){return mkvScan},get parseSubFile(){return parseSubFile},get fileOf(){return fileOf},get CN(){return CN},get cstore(){return cstore},get cnZip(){return cnZip},get cnGroups(){return cnGroups},get openCardNotes(){return openCardNotes},get importCardNotes(){return importCardNotes},get exportCardNotes(){return exportCardNotes},get loadZip(){return loadZip},get exportAll(){return exportAll},"
                                # the Agora folder (v32)
                                "get AG(){return AG},get agPaint(){return agPaint},get agFlush(){return agFlush},get agLink(){return agLink},get openVersions(){return openVersions},get itemVersions(){return itemVersions},get agVersions(){return agVersions},get agRestore(){return agRestore},get deleteCards(){return deleteCards},get saveCards(){return saveCards},get saveMarks(){return saveMarks},get saveRecs(){return saveRecs},"
                                "get FX(){return FX},get fidx(){return fidx},get FV(){return FV},get pages(){return pages},get connectFiles(){return connectFiles},get rescan(){return rescan},get openFolder(){return openFolder},get openViewer(){return openViewer},get openSearch(){return openSearch},get setFileTags(){return setFileTags},get saveTagsFile(){return saveTagsFile},get store(){return store},get fstore(){return fstore},get blobURL(){return blobURL}};\n") + html[i:]

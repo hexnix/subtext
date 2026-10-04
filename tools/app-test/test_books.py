@@ -2,7 +2,7 @@
 
     python3 tools/app-test/test_books.py . --out shots/books/
 
-Checks that a tap on the .epub opens the reader on its first page (the cover), Merriweather for every word, the chapter's name and
+Checks that a tap on the .epub opens the reader on its first page (the cover), Literata for every word (Merriweather in Aa), the book's own indents, alignment and heading colours, the chapter's name and
 how far you are, the book's own styles and scripts left out, a sideways swipe to the next and the previous chapter (and none past
 either end), a chapter scrolling to its end and stopping there, a tap showing and hiding the controls, the bar moving through the
 book, the contents page (C1: chapters, a section, "You're here", going to one), a note link and its way back, text size, lines and
@@ -75,16 +75,20 @@ async def main(app, out):
         await pg.evaluate(SWIPE, [-260]); await pg.wait_for_timeout(900)
         c1 = await pg.evaluate("""[T.BK.ch, document.querySelector('.bk-ch').textContent, document.querySelector('.bk-prog').textContent,
           getComputedStyle(document.querySelector('.bk-text p')).fontFamily, getComputedStyle(document.querySelector('.bk-text p')).color,
-          getComputedStyle(document.querySelector('.bk-ch')).fontFamily, !!document.querySelector('.bk-text [style],.bk-text [onclick],.bk-text script,.bk-text style,.bk-text [class]'), !!window.pwned]""")
+          getComputedStyle(document.querySelector('.bk-prog')).fontFamily, !!document.querySelector('.bk-text [style],.bk-text [onclick],.bk-text script,.bk-text style'), !!window.pwned,
+          getComputedStyle(document.querySelector('.bk-text p')).textIndent, getComputedStyle(document.querySelector('.bk-text h1')).color, getComputedStyle(document.querySelector('.bk-text h1')).textAlign,
+          getComputedStyle(document.querySelector('.bk-page')).backgroundColor, getComputedStyle(document.querySelector('.bk-text p')).textAlign]""")
         print('  ch1:', c1)
-        check(c1[0] == 1 and c1[1] == 'The Last Ferry' and 'min left in chapter' in c1[2], 'a swipe opens the next chapter, its name on top and how far below')
-        check('Merriweather' in c1[3] and 'Merriweather' in c1[5] and c1[4] == 'rgb(228, 228, 228)', 'the text and the lines around it are Merriweather')
-        check(not c1[6] and not c1[7], "the book's own styles and scripts are left out")
+        check(c1[0] == 1 and c1[1] == 'The Last Ferry' and c1[2].endswith('%') and 'min' not in c1[2], 'a swipe opens the next chapter; only how far through the book shows, like Kindle (v46)')
+        check('Literata' in c1[3] and 'Literata' in c1[5] and c1[4] == 'rgb(204, 204, 204)', 'the text and the lines around it are Literata, in Kindle\'s grey (v46)')
+        check(not c1[6] and not c1[7], "the book's scripts, inline styles and style blocks are left out")
+        check(c1[8] == '24px' and c1[11] == 'rgba(0, 0, 0, 0)' and c1[12] == 'justify', f"the book's own indent and alignment are kept, not its background ({c1[8:]})")
+        check(c1[10] == 'center' and c1[9] not in ('rgb(255, 255, 255)', 'rgb(204, 204, 204)') and 'Comic' not in c1[3], f"a heading's colour is kept (made lighter for the black page), never the book's font or its plain text's colour ({c1[9]})")
         await ph.shot(f'{out}/02-chapter.png')
 
         # the chapter scrolls to its end and stops there
         await pg.evaluate("T.BK.page.scrollTop = 1e6"); await pg.wait_for_timeout(500)
-        end = await pg.evaluate("[T.BK.ch, Math.round(T.BK.page.scrollTop + T.BK.page.clientHeight - T.BK.page.scrollHeight), document.querySelector('.bk-end').textContent, document.querySelector('.bk-prog').textContent]")
+        end = await pg.evaluate("[T.BK.ch, Math.round(T.BK.page.scrollTop + T.BK.page.clientHeight - T.BK.page.scrollHeight), document.querySelector('.bk-end').textContent, document.querySelector('.bk-left').textContent]")
         check(end[0] == 1 and abs(end[1]) <= 2 and 'A Box of Letters' in end[2] and 'End of chapter' in end[3], f'scrolling stops at the end of the chapter, which names the next ({end})')
         await ph.shot(f'{out}/03-chapter-end.png')
         await pg.evaluate(SWIPE, [-260]); await pg.wait_for_timeout(900)
@@ -98,7 +102,7 @@ async def main(app, out):
         # a tap shows the controls, another hides them
         await pg.mouse.click(206, 500); await pg.wait_for_timeout(400)
         ui = await pg.evaluate("[document.querySelector('.book').classList.contains('ui'), getComputedStyle(document.querySelector('.bk-title')).fontFamily]")
-        check(ui[0] and 'Merriweather' in ui[1], 'a tap shows the controls, in Merriweather')
+        check(ui[0] and 'Literata' in ui[1], 'a tap shows the controls, in the reader\'s font')
         # the bar: a tap near the middle goes there
         bx = await pg.locator('.bk-track').bounding_box()
         await pg.mouse.click(bx['x'] + bx['width'] * 0.55, bx['y'] + 1); await pg.wait_for_timeout(1000)
@@ -134,10 +138,12 @@ async def main(app, out):
             await pg.mouse.click(206, 500); await pg.wait_for_timeout(400)
         await pg.click('.bk-top [data-b="text"]'); await pg.wait_for_timeout(500)
         await pg.click('#sheet [data-act="bigger"]'); await pg.click('#sheet [data-act="bigger"]'); await pg.click('#sheet [data-act="l-open"]'); await pg.click('#sheet [data-act="m-wide"]')
-        await pg.wait_for_timeout(300)
+        await pg.click('#sheet [data-act="f-merriweather"]'); await pg.wait_for_timeout(300)
         await ph.shot(f'{out}/06-text-size.png')
         ts = await pg.evaluate("[getComputedStyle(document.querySelector('.bk-text')).fontSize, getComputedStyle(document.querySelector('.bk-page')).paddingLeft, document.querySelector('#sheet .bk-n').textContent, getComputedStyle(document.querySelector('#sheet h2')).fontFamily]")
-        check(ts[:3] == ['19px', '34px', '19'] and 'Merriweather' in ts[3], f'Aa makes the text bigger, the lines open and the margins wide ({ts})')
+        ff = await pg.evaluate("[getComputedStyle(document.querySelector('.bk-text')).fontFamily, getComputedStyle(document.querySelector('.bk-text')).lineHeight]")
+        check(ts[:3] == ['18px', '40px', '18'] and 'Merriweather' in ts[3], f'Aa makes the text bigger, the lines open and the margins wide ({ts})')
+        check('Merriweather' in ff[0] and ff[1] == '30.96px', f'and Merriweather can be picked instead of Literata ({ff})')
         await ph.back(); await pg.wait_for_timeout(400)
         await pg.evaluate("T.BK.page.scrollTop = T.BK.page.scrollHeight * 0.3"); await pg.wait_for_timeout(1200)
         place = await pg.evaluate("[T.BK.ch, T.BK.rec.y]")
@@ -151,7 +157,7 @@ async def main(app, out):
         await pg.locator('.page:last-child [data-fp="Books/The Salt Ledger.epub"]').first.click()
         await pg.wait_for_function("T.BK && T.BK.page && !document.querySelector('.bk-wait')", timeout=15000); await pg.wait_for_timeout(600)
         again = await pg.evaluate("[T.BK.ch, Math.abs(T.BK.page.scrollTop / (T.BK.page.scrollHeight - T.BK.page.clientHeight) - %f) < 0.05, getComputedStyle(document.querySelector('.bk-text')).fontSize, document.querySelector('.toast') && document.querySelector('.toast').textContent]" % place[1])
-        check(again[:3] == [place[0], True, '19px'] and 'Carrying on' in (again[3] or ''), f'opened again, it carries on where it was, in the same size ({again})')
+        check(again[:3] == [place[0], True, '18px'] and 'Carrying on' in (again[3] or ''), f'opened again, it carries on where it was, in the same size ({again})')
         await ph.shot(f'{out}/07-again.png')
         await ph.back(); await pg.wait_for_timeout(500)
 
