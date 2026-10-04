@@ -127,35 +127,42 @@ async def main(app, out):
         await pg.mouse.move(150, 300); await pg.mouse.down(); await pg.mouse.move(150, 250, steps=5); await pg.mouse.move(150, 330, steps=8)
         await ph.shot(f'{out}/03-brightness.png'); await pg.mouse.up()
         b = await pg.evaluate("T.PL.bright")
-        check(b < 1 and await pg.evaluate("+getComputedStyle(document.querySelector('.pl-dim')).opacity") > 0, f'swiping down on the left dims the picture ({b:.2f})')
+        check(b < 50 and await pg.evaluate("+getComputedStyle(document.querySelector('.pl-dim')).opacity") > 0, f'swiping down on the left dims the picture ({b})')
         await pg.mouse.move(150, 330); await pg.mouse.down(); await pg.mouse.move(150, 300, steps=5); await pg.mouse.move(150, 120, steps=10)
         await ph.shot(f'{out}/03b-brightness-boost.png')
         side = await pg.evaluate("(() => { const r = document.querySelector('.pl-side.l').getBoundingClientRect(); return [r.left, innerWidth]; })()")
         check(side[0] > side[1] / 2, f'the brightness bar shows on the right, away from the finger ({side})')
         await pg.mouse.up()
         b = await pg.evaluate("[T.PL.bright, T.PL.v.style.filter]")
-        check(b[0] > 1 and 'brightness' in b[1], f'and swiping up past 100 brightens the picture itself ({b})')
-        await pg.evaluate("localStorage.setItem('agora.player.bright', '1'); T.PL.bright = 1; document.querySelector('.pl-dim').style.opacity = '0'; T.PL.v.style.filter = ''")
+        check(b[0] > 50 and 'brightness' in b[1], f'and swiping up past 50% brightens the picture itself ({b})')
+        await pg.evaluate("localStorage.setItem('agora.player.bright2', '50'); T.PL.bright = 50; document.querySelector('.pl-dim').style.opacity = '0'; T.PL.v.style.filter = ''")
         await pg.mouse.move(770, 300); await pg.mouse.down(); await pg.mouse.move(770, 250, steps=5); await pg.mouse.move(770, 100, steps=10)
         await ph.shot(f'{out}/04-volume.png')
         side = await pg.evaluate("(() => { const r = document.querySelector('.pl-side.r').getBoundingClientRect(); return [r.right, innerWidth]; })()")
         check(side[0] < side[1] / 2, f'the volume bar shows on the left, away from the finger ({side})')
         await pg.mouse.up()
-        vol = await pg.evaluate("T.PL.vol")
-        check(vol == 100 and await pg.evaluate("!!T.PL.gain"), f'swiping up on the right raises the volume to 100, with a boost ({vol})')
-        gv = await pg.evaluate("T.PL.gain.g.gain.value")
-        check(abs(gv - 3) < 0.01, f'100 is 3 times the film\'s own level ({gv:.2f}x)')
-        await pg.mouse.move(770, 150); await pg.mouse.down(); await pg.mouse.move(770, 200, steps=5); await pg.mouse.move(770, 290, steps=10); await pg.mouse.up()
+        vol = await pg.evaluate("[T.PL.vol, document.querySelector('.pl-side.r span').textContent, document.querySelector('.pl-side.r').classList.contains('boost')]")
+        check(vol[0] > 100 and vol[1] == f'{vol[0]}%' and vol[2], f'a swipe that starts at 100% goes on beyond it, the bar turning orange (MX) ({vol})')
+        await pg.evaluate("localStorage.setItem('agora.player.vol3', '60'); T.PL.vol = 60"); await pg.mouse.click(400, 300); await pg.wait_for_timeout(400)
+        await pg.mouse.move(770, 300); await pg.mouse.down(); await pg.mouse.move(770, 250, steps=5); await pg.mouse.move(770, 60, steps=10)
+        hint = await pg.evaluate("document.querySelector('.pl-hint') && document.querySelector('.pl-hint').textContent"); await pg.mouse.up()
+        vol = await pg.evaluate("[T.PL.vol, T.PL.v.volume]")
+        check(vol == [100, 1] and hint == 'Slide up again to go beyond 100%', f'a swipe from below stops at 100% and says to slide again ({vol}, {hint})')
+        await pg.mouse.move(770, 405); await pg.mouse.down(); await pg.mouse.move(770, 355, steps=5); await pg.mouse.move(770, 5, steps=14)
+        await ph.shot(f'{out}/04-volume.png'); await pg.mouse.up()
+        vol = await pg.evaluate("[T.PL.vol, !!T.PL.gain, T.PL.gain && T.PL.gain.g.gain.value]")
+        check(vol[0] == 200 and vol[1] and abs(vol[2] - 2) < 0.01, f'the next swipe goes on to 200%, twice the film\'s own level ({vol})')
+        await pg.mouse.move(770, 10); await pg.mouse.down(); await pg.mouse.move(770, 60, steps=5); await pg.mouse.move(770, 405, steps=14); await pg.mouse.up()
         vol2 = await pg.evaluate("[T.PL.vol, T.PL.v.volume, T.PL.gain.g.gain.value]")
-        check(5 < vol2[0] < 69 and abs(vol2[1] - 3 * (vol2[0] / 100) ** 3) < 0.01 and vol2[2] == 1, f'and down again, below the film\'s own level ({vol2})')
+        check(0 < vol2[0] < 100 and vol2[1] < 1 and vol2[2] == 1, f'and down again, below the film\'s own level ({vol2})')
 
         # the picture: fit, crop, stretch, then pinch to zoom
-        await pg.mouse.click(300, 120); await pg.wait_for_timeout(300)
+        if not await pg.evaluate("document.querySelector('.player').classList.contains('ui')"): await pg.mouse.click(300, 120); await pg.wait_for_timeout(400)
         modes = []
-        for _ in range(3):
+        for _ in range(2):
             await pg.locator('[data-p="fit"]').click(); await pg.wait_for_timeout(150)
-            modes.append(await pg.evaluate("getComputedStyle(T.PL.v).objectFit"))
-        check(modes == ['cover', 'fill', 'contain'], f'the corner button goes crop, stretch, fit ({modes})')
+            modes.append(await pg.evaluate("[getComputedStyle(T.PL.v).objectFit, document.querySelector('.pl-fit').dataset.m, document.querySelector('.pl-fit').getAttribute('aria-label')]"))
+        check(modes == [['cover', 'crop', 'Crop to fill'], ['contain', 'fit', 'Fit to screen']], f'the corner button goes crop, fit, its icon changing with it ({modes})')
         await pg.evaluate('''(() => { const el = document.querySelector('.player');
           const ev = (t, id, x, y) => el.dispatchEvent(new PointerEvent(t, {pointerId: id, clientX: x, clientY: y, bubbles: true, isPrimary: id === 1}));
           ev('pointerdown', 1, 400, 200); ev('pointerdown', 2, 500, 200);
@@ -163,9 +170,20 @@ async def main(app, out):
           ev('pointerup', 1, 350, 200); ev('pointerup', 2, 550, 200); })()''')
         await pg.wait_for_timeout(200); await ph.shot(f'{out}/04b-pinch.png')
         z = await pg.evaluate("[T.PL.rec.view.z, T.PL.v.style.transform, document.querySelector('.player').classList.contains('ui')]")
-        check(abs(z[0] - 2) < 0.01 and 'scale(2' in z[1], f'pinching out zooms the picture, around the fingers ({z})')
+        check(abs(z[0] - 2) < 0.01 and 'scale(2' in z[1] and 'translate(0px, 0px)' in z[1], f'pinching out zooms the picture, around the middle ({z})')
         await pg.wait_for_timeout(500)
         check(await pg.evaluate("!!T.PL.v.style.transform"), 'a pinch is not taken for a tap')
+        await pg.evaluate("localStorage.setItem('agora.player.pan', '1')")
+        await pg.evaluate('''(() => { const el = document.querySelector('.player');
+          const ev = (t, id, x, y) => el.dispatchEvent(new PointerEvent(t, {pointerId: id, clientX: x, clientY: y, bubbles: true, isPrimary: id === 1}));
+          ev('pointerdown', 1, 400, 200); ev('pointerdown', 2, 500, 200);
+          ev('pointermove', 1, 460, 260); ev('pointermove', 2, 560, 260);
+          ev('pointerup', 1, 460, 260); ev('pointerup', 2, 560, 260); })()''')
+        await pg.wait_for_timeout(200)
+        t = await pg.evaluate("T.PL.v.style.transform")
+        check('translate(0px, 0px)' not in t, f'with Zoom and pan on, moving both fingers shifts the picture ({t})')
+        await pg.evaluate("localStorage.removeItem('agora.player.pan')")
+        await pg.wait_for_timeout(500)
 
         # hold a subtitle and drag it up: kept for the screen with the controls and without them
         await pg.evaluate("T.PL.v.currentTime = 6.5"); await pg.wait_for_timeout(400)
@@ -180,8 +198,16 @@ async def main(app, out):
 
         # the subtitles panel (3A): tracks, Off, size; Back closes only the panel
         depth = await pg.evaluate("history.state && history.state.agora || 0")
-        await pg.mouse.click(300, 120); await pg.wait_for_timeout(400)
-        await pg.locator('[data-p="subs"]').click(); await pg.wait_for_timeout(500)
+        if not await pg.evaluate("document.querySelector('.player').classList.contains('ui')"): await pg.mouse.click(300, 120); await pg.wait_for_timeout(400)
+        await pg.locator('[data-p="subs"]').click(); await pg.wait_for_timeout(400)
+        cc = await pg.evaluate("[T.PL.subId, document.querySelector('.pl-cc').classList.contains('off'), !document.querySelector('.pl-panel.open')]")
+        await pg.locator('[data-p="subs"]').click(); await pg.wait_for_timeout(400)
+        cc2 = await pg.evaluate("[T.PL.subId, document.querySelector('.pl-cc').classList.contains('off')]")
+        check(cc == ['off', True, True] and cc2 == ['mkv:3', False], f'a tap on CC turns the subtitles off, the next back on ({cc}, {cc2})')
+        await pg.wait_for_function("T.PL.cues.length > 0", timeout=10000)
+        bb = await pg.locator('[data-p="subs"]').bounding_box()
+        await pg.mouse.move(bb['x'] + 20, bb['y'] + 20); await pg.mouse.down(); await pg.wait_for_timeout(650); await pg.mouse.up(); await pg.wait_for_timeout(500)
+        check(await pg.evaluate("!!document.querySelector('.pl-panel.open') && T.PL.subId === 'mkv:3'"), 'holding CC opens the subtitles panel (and leaves them on)')
         await pg.evaluate("T.PL.v.currentTime = 3"); await pg.wait_for_timeout(300)
         await ph.shot(f'{out}/05-subtitles-panel.png')
         opts = await pg.locator('.pl-panel .pl-opt').all_inner_texts()

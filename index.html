@@ -655,7 +655,7 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 .player{position:fixed;inset:0;z-index:50;background:#000;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   --sub:1;--ui:0;--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--sb:env(safe-area-inset-bottom,0px)}
 .player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform-origin:50% 50%}
-.player.crop video{object-fit:cover} .player.stretch video{object-fit:fill}
+.player.crop video{object-fit:cover}
 .pl-dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
 /* the subtitle: Roboto (the phone's own font) 600, white with a soft shadow, just above the bottom edge; it moves up while the controls show */
 .pl-sub{position:absolute;left:8%;right:8%;bottom:calc(var(--sb) + 3.2vmin + var(--sy0,0px));text-align:center;white-space:pre-line;text-wrap:balance;
@@ -686,9 +686,23 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 .pl-knob{position:absolute;left:0;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:var(--gold);transition:transform .15s}
 .pl-seek.drag .pl-knob{transform:scale(1.35)}
 /* B1: a blue dot for each card from this film, a white one for each line saved here and not made into a card yet */
-.pl-marks{position:absolute;inset:0;pointer-events:none}
-.pl-marks i{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 1.5px rgba(0,0,0,.45)}
-.pl-marks i.n{background:#fff}
+/* v46: the jump buttons under the title, sized and spaced like MX Player's row of round buttons */
+.pl-jumps{position:absolute;top:calc(60px + env(safe-area-inset-top,0px));left:calc(12px + var(--sl));display:flex;gap:18px}
+.pl-jumps[hidden]{display:none}
+.pl-jb{width:44px;height:44px;border-radius:50%;background:rgba(20,21,24,.62);display:grid;place-items:center;color:#fff}
+.pl-jb:active{background:rgba(255,255,255,.18)}
+.player .pl-cc.off svg{opacity:.45}
+.player .pl-cc.off{position:relative}
+.player .pl-cc.off::after{content:'';position:absolute;left:11px;right:11px;top:50%;height:1.6px;background:#fff;transform:rotate(-35deg)}
+.pl-hint{position:absolute;left:50%;bottom:calc(26px + var(--sb));transform:translateX(-50%);background:rgba(28,29,32,.94);border-radius:10px;padding:9px 14px;font-size:13px;color:#fff;white-space:nowrap;pointer-events:none;animation:fadein .15s}
+.pl-defs{position:absolute;top:0;right:0;bottom:0;width:min(380px,52vw);background:#121316;padding:20px 0 calc(24px + var(--sb));padding-right:var(--sr);overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;transform:translateX(100%);transition:transform .25s var(--ease)}
+.pl-defs.open{transform:none}
+.player.defs .pl-sub{right:calc(min(380px,52vw) + 4%)}
+.pl-defs .dtext{padding:0 22px;font-size:14.5px}
+.pl-defs .dtext .t-headword{font-size:24px;margin-bottom:2px}
+.pl-defs .dtext .t-headword.long{font-size:20px}
+.pl-defs .pd-sep{height:1px;background:#26282c;margin:22px 22px}
+.pl-defs .pd-img{padding:0 22px}.pl-defs .pd-img img{display:block;width:100%;border-radius:8px}
 /* C1: the card the film has just reached */
 .pl-card{position:absolute;right:calc(22px + var(--sr));top:calc(64px + env(safe-area-inset-top,0px));display:flex;gap:10px;align-items:center;background:rgba(28,29,32,.94);border-radius:14px;padding:8px 14px 8px 8px;font:14px var(--sans);color:#fff;animation:fadein .2s;transition:opacity .3s;max-width:46vw}
 .pl-card.out{opacity:0}
@@ -704,9 +718,12 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 /* brightness is swiped on the left and volume on the right (pick 4A); each bar shows on the other side, away from the finger */
 .pl-side{position:absolute;top:50%;transform:translateY(-50%);height:min(220px,54vh);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:12px;color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
 .pl-side.l{right:calc(26px + var(--sr))} .pl-side.r{left:calc(26px + var(--sl))}
-.pl-side .tr{flex:1;width:4px;border-radius:2px;background:rgba(255,255,255,.3);position:relative}
-.pl-side .tr i{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:2px}
-.pl-side .tr i.boost{background:var(--gold)}
+.pl-side{background:rgba(20,21,24,.55);border-radius:16px;padding:10px 8px 10px;width:40px;box-sizing:border-box}
+.pl-side span{font-size:11px;font-weight:500}
+.pl-side svg{width:16px;height:16px}
+.pl-side .tr{flex:1;width:3px;border-radius:2px;background:rgba(255,255,255,.28);position:relative}
+.pl-side .tr i{position:absolute;left:0;right:0;bottom:0;background:var(--gold);border-radius:2px}
+.pl-side.boost .tr i{background:linear-gradient(0deg,var(--gold) 0,var(--gold) 50%,#FF9F1C 72%,#FF3B30 100%);background-position:bottom;background-repeat:no-repeat}
 .pl-flash{position:absolute;top:50%;transform:translateY(-50%);padding:10px 16px;border-radius:999px;background:rgba(0,0,0,.55);font-size:14px;color:#fff;pointer-events:none;animation:fadein .15s}
 .pl-flash.l{left:18%} .pl-flash.r{right:18%} .pl-flash.c{left:50%;transform:translate(-50%,-50%)}
 .pl-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 40px;text-align:center;color:var(--muted)}
@@ -5341,16 +5358,29 @@ const PI = {
   fwd: svg('<path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4h-4"/>', 40),
   cc: svg('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M10 10.2a2.3 2.3 0 1 0 0 3.6M17 10.2a2.3 2.3 0 1 0 0 3.6"/>', 24),
   lock: svg('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 24),
-  fit: svg('<path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/>', 24),
+  fit: svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9.5 10.5 12 8 14.5M16 9.5 13.5 12l2.5 2.5"/>', 24),
+  crop: svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5 7.5 12l2.5 2.5M14 9.5l2.5 2.5-2.5 2.5"/>', 24),
+  prev: svg('<path d="M15 6.5 9.5 12l5.5 5.5"/><path d="M6 6.5v11"/>', 24),
+  next: svg('<path d="M9 6.5l5.5 5.5L9 17.5"/><path d="M18 6.5v11"/>', 24),
   sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>', 24),
   vol: svg('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>', 24)
 };
-/* brightness 10–200: below 100 a black layer darkens the film, above it the picture itself is brightened (up to 2×) */
-const plBright = () => { const v = parseFloat(ls.get('player.bright')); return v >= 0.1 && v <= 2 ? v : 1; };
-/* volume 0–100 on screen. Like VLC and mpv, the loudness follows the cube of the slider, so each step sounds even; the top
-   is 3× the film's own level (+9.5 dB: 2× was too quiet for a film mixed for cinemas, 4× too loud). The film's own level is at 69. */
-const PL_AMAX = 3, plAmp = s => PL_AMAX * (s / 100) ** 3;
-const plVol = () => { const v = parseFloat(ls.get('player.vol2')); return v >= 5 && v <= 100 ? v : 69; };
+/* brightness 0–100%, counted like MX Player's bar. A web page can't change the screen's own brightness, so below 50% a black
+   layer darkens the film and above it the picture itself is brightened (up to 2× at 100%); 50% is the film as it is. */
+const plBright = () => { const v = parseFloat(ls.get('player.bright2')); return v >= 0 && v <= 100 ? v : 50; };
+const plBrightF = p => p <= 50 ? 0.1 + 0.9 * p / 50 : 1 + (p - 50) / 50;
+/* volume 0–200%, like MX Player (the owner's ask, matched from its app and a screen recording): up to 100% the film's own level
+   follows Android's media volume curve (−58 dB at 1%, −40 at 20%, −17 at 60%, 0 at 100%); a swipe stops at 100% and says
+   "Slide up again to go beyond 100%"; past it the sound is multiplied straight up to 2× at 200% (MX's PCM volume changer). */
+const PL_CURVE = [[1, -58], [20, -40], [60, -17], [100, 0]];
+function plAmp(s) {
+  if (s <= 0) return 0;
+  if (s > 100) return s / 100;
+  let i = 0; while (i < PL_CURVE.length - 2 && s > PL_CURVE[i + 1][0]) i++;
+  const [a, da] = PL_CURVE[i], [b, db] = PL_CURVE[i + 1], dB = s <= a ? da : da + (db - da) * (s - a) / (b - a);
+  return 10 ** (dB / 20);
+}
+const plVol = () => { const v = parseFloat(ls.get('player.vol3')); return v >= 0 && v <= 200 ? v : 100; };
 function openPlayer(r, at) {
   if (PL) return;
   if (!FX.ready) { // the tap that opens the film also gives Agora the folder
@@ -5361,32 +5391,33 @@ function openPlayer(r, at) {
   el.innerHTML = `<video playsinline preload="auto"></video><div class="pl-dim"></div><div class="pl-sub"></div>
     <div class="pl-ctl">
       <div class="pl-top"><button class="iconbtn" data-p="back" aria-label="Back">${ICON.back}</button><span class="pl-name"></span>
-        <button class="iconbtn" data-p="subs" aria-label="Subtitles">${PI.cc}</button><button class="iconbtn" data-p="more" aria-label="Options for this video">${ICON.more}</button></div>
+        <button class="iconbtn pl-cc" data-p="subs" aria-label="Subtitles on or off. Hold for the subtitles panel">${PI.cc}</button><button class="iconbtn" data-p="more" aria-label="Options for this video">${ICON.more}</button></div>
+      <div class="pl-jumps" hidden><button class="pl-jb" data-p="tprev" aria-label="Previous word">${PI.prev}</button><button class="pl-jb" data-p="tnext" aria-label="Next word">${PI.next}</button></div>
       <div class="pl-mid"><button class="pl-skip" data-p="rew" aria-label="Back 10 seconds">${PI.rew}<b>10</b></button>
         <button class="pl-big" data-p="play" aria-label="Play">${PI.play}</button>
         <button class="pl-skip" data-p="fwd" aria-label="Forward 10 seconds">${PI.fwd}<b>10</b></button></div>
       <div class="pl-bot"><div class="pl-row"><span class="pl-t now">0:00</span>
-          <div class="pl-seek" role="slider" aria-label="Position in the video"><div class="pl-track"><div class="pl-buf"></div><div class="pl-done"></div><div class="pl-marks"></div><div class="pl-knob"></div></div></div>
+          <div class="pl-seek" role="slider" aria-label="Position in the video"><div class="pl-track"><div class="pl-buf"></div><div class="pl-done"></div><div class="pl-knob"></div></div></div>
           <span class="pl-t end">0:00</span></div>
-        <div class="pl-icons"><button class="iconbtn" data-p="lock" aria-label="Lock the screen">${PI.lock}</button><button class="iconbtn" data-p="fit" aria-label="Fill the screen">${PI.fit}</button></div></div>
+        <div class="pl-icons"><button class="iconbtn" data-p="lock" aria-label="Lock the screen">${PI.lock}</button><button class="iconbtn pl-fit" data-p="fit" aria-label="Fit to screen">${PI.fit}</button></div></div>
     </div>
     <button class="iconbtn pl-unlock" data-p="unlock" aria-label="Unlock" hidden>${PI.lock}</button>
-    <div class="pl-side l" hidden>${PI.sun}<div class="tr"><i></i></div><span></span></div>
-    <div class="pl-side r" hidden>${PI.vol}<div class="tr"><i></i></div><span></span></div>
-    <div class="pl-panel" hidden></div><div class="pl-note" hidden></div>`;
+    <div class="pl-side l" hidden><span></span><div class="tr"><i></i></div>${PI.sun}</div>
+    <div class="pl-side r" hidden><span></span><div class="tr"><i></i></div>${PI.vol}</div>
+    <div class="pl-panel" hidden></div><div class="pl-note" hidden></div><div class="pl-defs" hidden></div>`;
   document.body.appendChild(el); document.body.classList.add('locked');
   const v = $('video', el);
   PL = { el, v, r, key: vidKey(r), startAt: at, rec: null, info: null, file: null, url: null, cues: [], cueI: -1, subs: [], subId: null, job: 0,
     bright: plBright(), vol: plVol(), locked: false, uiT: 0, savedAt: 0, raf: 0, gain: null };
   $('.pl-name', el).textContent = r.name;
   plFull();
-  plApplyBright(); plApplySubY();
+  plApplyBright(); plApplySubY(); plCcPaint(); plCcHold();
   if (plAmp(PL.vol) > 1) plAudioWake(true); // the tap that opened the film may start the boost straight away
   plApplyVol();
   el.addEventListener('click', plClick);
   el.addEventListener('contextmenu', e => e.preventDefault());
   plGestures(); plSeekBar(); plSubSwipe();
-  v.addEventListener('play', plPaintPlay); v.addEventListener('pause', () => { plPaintPlay(); plSave(); plShowUI(); });
+  v.addEventListener('play', plPaintPlay); v.addEventListener('pause', () => { plPaintPlay(); plSave(); if (!PL || !(PL.paneled || PL.noting)) plShowUI(); });
   v.addEventListener('timeupdate', () => { if (PL && PL.v === v) { plPaintTime(); plCardCheck(); if (Date.now() - PL.savedAt > 5000) plSave(); } });
   v.addEventListener('progress', plPaintTime);
   v.addEventListener('loadedmetadata', plStart);
@@ -5527,12 +5558,13 @@ function plClick(e) {
   if (k === 'back') back();
   else if (k === 'play') { P.v.paused ? P.v.play().catch(() => {}) : P.v.pause(); plShowUI(); }
   else if (k === 'rew' || k === 'fwd') { plSkip(k === 'rew' ? -10 : 10); plShowUI(); }
-  else if (k === 'subs') plPanel();
+  else if (k === 'subs') { if (P.ccHeld) P.ccHeld = false; else plCcToggle(); plShowUI(); }
+  else if (k === 'tprev' || k === 'tnext') { plJump(k === 'tnext' ? 1 : -1); plShowUI(); }
   else if (k === 'more') plMenu();
   else if (k === 'share') shareFiles([P.r.path]);
   else if (k === 'fit' && P.rec) {
     const i = (PL_MODES.findIndex(m => m[0] === plView().m) + 1) % PL_MODES.length;
-    P.rec.view = { m: PL_MODES[i][0], z: 1, x: 0, y: 0 }; plApplyView(); plSave(true); plFlash('c', PL_MODES[i][1]); plShowUI();
+    const z = plView(); P.rec.view = { m: PL_MODES[i][0], z: z.z, x: z.x, y: z.y }; plApplyView(); plSave(true); plFlash('c', PL_MODES[i][1]); plShowUI();
   }
   else if (k === 'lock') { P.locked = true; plHideUI(); plUnlockHint(); }
   else if (k === 'unlock') { P.locked = false; $('.pl-unlock', P.el).hidden = true; plShowUI(); }
@@ -5540,7 +5572,7 @@ function plClick(e) {
   else if (k === 'size') { ls.set('player.sub', b.dataset.s); plApplySize(); plPanelPaint(); }
   else if (k === 'nsave') plNoteSave(b.dataset.kind);
   else if (k === 'nundo') cnUndo();
-  else if (k === 'card') plOpenCard(b.dataset.id);
+  else if (k === 'card') plDefs(b.dataset.id);
   else if (k === 'match') plMatchSheet();
 }
 function plUnlockHint() {
@@ -5550,8 +5582,13 @@ function plUnlockHint() {
 function plMenu() {
   const r = PL.r;
   sheet(`<h2>${esc(r.name)}</h2><p class="sub num">${fmeta(r)}</p>
-    <div class="list">${item('match', ico('image', 'Cards from'), PL.match ? esc(PL.match.name) : 'none')}${item('share', ico('share', 'Share / Open with…'))}${item('folder', ico('folder', 'Show in folder'), '', '', esc(['My Files', ...(r.dir ? r.dir.split('/') : [])].join(' › ')))}</div>`, {
+    <div class="list">${item('match', ico('image', 'Cards from'), PL.match ? esc(PL.match.name) : 'none')}${item('pan', ico('image', 'Zoom and pan'), plPan() ? 'On: two fingers also move the picture' : 'Off: pinching only zooms')}${item('share', ico('share', 'Share / Open with…'))}${item('folder', ico('folder', 'Show in folder'), '', '', esc(['My Files', ...(r.dir ? r.dir.split('/') : [])].join(' › ')))}</div>`, {
     match: () => closeSheet(plMatchSheet),
+    pan: () => {
+      ls.set('player.pan', plPan() ? '0' : '1');
+      const P = PL; if (!plPan() && P && P.rec) { const v = plView(); P.rec.view = { m: v.m, z: v.z, x: 0, y: 0 }; plApplyView(); plSave(true); } // back to the middle
+      closeSheet(); toast(plPan() ? 'Zoom and pan on' : 'Zoom only');
+    },
     share: () => { shareFiles([r.path]); closeSheet(); },
     folder: () => {
       const under = pages[pages.length - 1], there = under && under.kind === 'files' && under.dir === r.dir;
@@ -5637,21 +5674,21 @@ function plMatchSheet() {
     Object.assign({ none: () => { P.rec.match = { none: true, at: Date.now() }; plSave(true); P.match = null; plMarks(); closeSheet(); } },
       Object.fromEntries(gs.map((g, i) => ['g' + i, () => { P.rec.match = { key: g.key, by: 'you', at: Date.now() }; plSave(true); closeSheet(); plMatch(P); }]))));
 }
-/* the dots: blue for cards, white for lines saved here and not made into cards yet (B1) */
+/* the cards' moments in this film (v46: no dots on the seek bar; two buttons under the title go to the previous or next one) */
 function plMarks() {
   const P = PL; if (!P) return;
-  const d = P.v.duration, list = [];
-  if (P.match) for (const c of P.match.cards) list.push({ t: P.match.at.get(c.id), c });
-  for (const n of CN.recs.values()) if (n.src && n.src.key === P.key && !cnCardsOf(n.id).length) list.push({ t: n.time, n });
-  P.marks = list.filter(m => Number.isFinite(m.t)).sort((a, b) => a.t - b.t);
-  $('.pl-marks', P.el).innerHTML = isFinite(d) && d > 0 ? P.marks.map(m => `<i class="${m.c ? 'c' : 'n'}" style="left:${Math.min(100, m.t / d * 100).toFixed(3)}%"></i>`).join('') : '';
+  P.marks = P.match ? P.match.cards.map(c => ({ t: P.match.at.get(c.id), c })).filter(m => Number.isFinite(m.t)).sort((a, b) => a.t - b.t) : [];
+  $('.pl-jumps', P.el).hidden = !P.marks.length;
 }
-function plMarkNear(x) {
-  const P = PL, d = P && P.v.duration; if (!P || !P.marks || !isFinite(d)) return null;
-  const r = $('.pl-track', P.el).getBoundingClientRect();
-  let best = null, bd = 14;
-  for (const m of P.marks) { const dx = Math.abs(r.left + m.t / d * r.width - x); if (dx < bd) { bd = dx; best = m; } }
-  return best;
+/* to about 5 seconds before the next (or previous) word is spoken; a second tap goes on to the one after */
+const PL_LEAD = 5;
+function plJump(dir) {
+  const P = PL; if (!P || !P.marks || !P.marks.length) return;
+  const now = P.v.currentTime + PL_LEAD; // where the playhead's word would be
+  const m = dir > 0 ? P.marks.find(x => x.t > now + 0.5) : [...P.marks].reverse().find(x => x.t < now - 1.5);
+  if (!m) { plFlash('c', dir > 0 ? 'No more words after this' : 'No words before this'); return; }
+  P.v.currentTime = Math.max(0, m.t - PL_LEAD); P.lastT = null; plPaintTime(); plSave();
+  plFlash('c', nameOf(m.c) || 'Card');
 }
 /* C1: when the film plays into a card's moment, a small card at the top right for a few seconds */
 function plCardCheck() {
@@ -5670,35 +5707,57 @@ function plCardNotice(c) {
   P.el.appendChild(b); clearTimeout(P.cardT);
   P.cardT = setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 300); }, 5000);
 }
-/* opening the card pauses the film; Back comes back to the same moment */
-function plOpenCard(id) {
+/* a tap on the notice: the card's definition pages in a pane on the right (v46), only the word and its core meaning, one page
+   under another; the film pauses and plays on when the pane closes */
+function plDefHTML(c) {
+  const KEEP = new Set(['headword', 'meta', 'def', 'heading', 'subheading', 'p', 'list', 'ol', 'quote', 'img', 'label']);
+  const pages = defIdsOf(c).map((id, i) => {
+    if (vidOf(c, i)) return '';
+    const t = textOf(c, i);
+    if (!t) return id ? `<div class="pd-img"><img alt="" data-pic="${esc(id)}"></div>` : '';
+    const blocks = t.blocks.filter(b => b && KEEP.has(b.t));
+    return blocks.length ? textHTML({ ...t, blocks }) : '';
+  }).filter(Boolean);
+  return pages.length ? pages.join('<div class="pd-sep"></div>') : `<div class="dtext"><div class="t-headword">${esc(nameOf(c))}</div></div>`;
+}
+function plDefs(id) {
   const P = PL, c = cards.find(x => x.id === id); if (!P || !c) return;
-  P.v.pause(); $$('.pl-card', P.el).forEach(x => x.remove());
-  const d = decks.find(x => x.id === c.deckId); if (!d) return;
-  openStudy(d, c.id, P.match ? P.match.cards : [c]);
-  const st = $$('.study'); if (st.length) st[st.length - 1].style.zIndex = 55; // above the player
+  $$('.pl-card', P.el).forEach(x => x.remove());
+  const pn = $('.pl-defs', P.el); if (pn.classList.contains('open')) return;
+  pn.innerHTML = plDefHTML(c); loadPics(pn); pn.scrollTop = 0;
+  P.defWas = !P.v.paused; P.v.pause(); plHideUI();
+  pn.hidden = false; pn.offsetWidth; pn.classList.add('open'); P.el.classList.add('defs'); P.paneled = true;
+  const shut = e => { if (!e.target.closest('.pl-defs')) { e.stopPropagation(); e.preventDefault(); back(); } };
+  P.el.addEventListener('pointerdown', shut, true); P.dshut = shut;
+  pushLayer(() => {
+    if (!PL || PL !== P) return;
+    P.el.removeEventListener('pointerdown', P.dshut, true);
+    pn.classList.remove('open'); P.el.classList.remove('defs'); P.paneled = false;
+    setTimeout(() => { if (!pn.classList.contains('open')) pn.hidden = true; }, 260);
+    if (P.defWas) P.v.play().catch(() => {});
+  });
 }
 
 /* ---- gestures: tap for the controls, double-tap a side to skip 10 s, swipe up or down on the left for brightness, on the right for volume ---- */
 function plApplyBright() {
   if (!PL) return;
-  $('.pl-dim', PL.el).style.opacity = String(Math.max(0, 1 - PL.bright));
-  PL.v.style.filter = PL.bright > 1.005 ? `brightness(${PL.bright.toFixed(2)})` : '';
+  const f = plBrightF(PL.bright);
+  $('.pl-dim', PL.el).style.opacity = String(Math.max(0, 1 - f));
+  PL.v.style.filter = f > 1.005 ? `brightness(${f.toFixed(2)})` : '';
 }
 function plApplyVol() {
   const P = PL; if (!P) return;
   const a = plAmp(P.vol);
   if (a <= 1) { P.boostWait = false; P.v.volume = a; if (P.gain) P.gain.g.gain.value = 1; return; }
-  // above the film's own level the sound goes through Web Audio, like MX Player's boost, with a limiter after it so the
-  // loud scenes don't crackle. Once it goes there it can't come back out, and Chrome keeps a sound context silent unless a
+  // above the film's own level the sound goes through Web Audio and is multiplied straight up, like MX Player's boost (no limiter:
+  // MX clips the loudest peaks too). Once it goes there it can't come back out, and Chrome keeps a sound context silent unless a
   // touch started it: so it moves over only once a context made at touch-down is running; until then it plays at its own level.
   if (!P.gain) {
     const ctx = P.actx;
     if (!ctx || ctx.state !== 'running') { P.boostWait = true; P.v.volume = 1; if (ctx) ctx.resume().catch(() => {}); return; }
     try {
-      const g = ctx.createGain(), lim = ctx.createDynamicsCompressor();
-      lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.15;
-      ctx.createMediaElementSource(P.v).connect(g); g.connect(lim); lim.connect(ctx.destination); P.gain = { ctx, g };
+      const g = ctx.createGain();
+      ctx.createMediaElementSource(P.v).connect(g); g.connect(ctx.destination); P.gain = { ctx, g };
     } catch (e) { console.warn(e); P.v.volume = 1; return; }
   }
   P.boostWait = false; P.v.volume = 1; P.gain.g.gain.value = a;
@@ -5712,14 +5771,16 @@ function plAudioWake(right) {
   }
   if (P.actx && P.actx.state !== 'running') P.actx.resume().then(() => { if (PL === P && P.boostWait) plApplyVol(); }).catch(() => {});
 }
-/* how the picture sits: fit (all of it), crop (fills the screen, edges cut) or stretch (fills the screen, all of it);
-   pinching zooms and moves it from there. Kept per film. */
-const PL_MODES = [['fit', 'Fit to screen'], ['crop', 'Crop to fill'], ['stretch', 'Stretch to fill']];
-const plView = () => (PL && PL.rec && PL.rec.view) || { m: 'fit', z: 1, x: 0, y: 0 };
+/* how the picture sits: fit (all of it) or crop (fills the screen, edges cut); the button's icon shows which. Pinching zooms
+   around the middle; with "Zoom and pan" on (⋯), moving both fingers also shifts the picture. Kept per film. */
+const PL_MODES = [['fit', 'Fit to screen'], ['crop', 'Crop to fill']];
+const plView = () => { const v = (PL && PL.rec && PL.rec.view) || { m: 'fit', z: 1, x: 0, y: 0 }; if (v.m !== 'crop') v.m = 'fit'; return v; };
+const plPan = () => ls.get('player.pan') === '1';
 function plApplyView() {
   const P = PL; if (!P) return;
   const v = plView(), w = P.el.clientWidth, h = P.el.clientHeight;
-  P.el.classList.toggle('crop', v.m === 'crop'); P.el.classList.toggle('stretch', v.m === 'stretch');
+  P.el.classList.toggle('crop', v.m === 'crop');
+  const fb = $('.pl-fit', P.el); if (fb && fb.dataset.m !== v.m) { fb.dataset.m = v.m; fb.innerHTML = v.m === 'crop' ? PI.crop : PI.fit; fb.setAttribute('aria-label', v.m === 'crop' ? 'Crop to fill' : 'Fit to screen'); }
   P.v.style.transform = v.z === 1 && !v.x && !v.y ? '' : `translate(${(v.x * w).toFixed(1)}px,${(v.y * h).toFixed(1)}px) scale(${v.z.toFixed(3)})`;
 }
 function plZoomLabel(text) {
@@ -5727,13 +5788,22 @@ function plZoomLabel(text) {
   if (!f) { $$('.pl-flash', P.el).forEach(x => x.remove()); f = document.createElement('div'); f.className = 'pl-flash c zoom'; P.el.appendChild(f); }
   f.textContent = text; clearTimeout(f.t); f.t = setTimeout(() => f.remove(), 700);
 }
+/* the bars, drawn like MX Player's: the % on top, a slim bar, the icon below; past 100% the volume bar counts to 200% and
+   its top turns from blue through orange to red */
 function plSide(which) {
-  const P = PL, s = $(`.pl-side.${which}`, P.el), val = which === 'l' ? P.bright * 100 : P.vol;
+  const P = PL, s = $(`.pl-side.${which}`, P.el), val = which === 'l' ? P.bright : P.vol, boost = which === 'r' && val > 100;
   s.hidden = false; clearTimeout(s.t);
-  const i = $('i', s); i.style.height = (which === 'l' ? val / 2 : val) + '%';
-  i.classList.toggle('boost', which === 'l' ? val > 100.5 : plAmp(val) > 1);
-  $('span', s).textContent = Math.round(val);
+  const i = $('i', s); i.style.height = (boost ? val / 2 : val) + '%';
+  i.style.backgroundSize = boost ? `100% ${(20000 / val).toFixed(1)}%` : ''; // the colours belong to the whole bar, not the filled part
+  s.classList.toggle('boost', boost);
+  $('span', s).textContent = Math.round(val) + '%';
   s.t = setTimeout(() => { s.hidden = true; }, 900);
+}
+function plBoostHint() {
+  const P = PL; if (!P) return;
+  let t = $('.pl-hint', P.el);
+  if (!t) { t = document.createElement('div'); t.className = 'pl-hint'; t.textContent = 'Slide up again to go beyond 100%'; P.el.appendChild(t); }
+  clearTimeout(t.t); t.t = setTimeout(() => t.remove(), 1800);
 }
 function plGestures() {
   const P = PL, el = P.el;
@@ -5761,7 +5831,8 @@ function plGestures() {
       const z = Math.max(0.5, Math.min(5, pinch.z0 * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d0));
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
       // the point that was under the fingers stays under them
-      const x = mx - w / 2 - z * (pinch.mx - w / 2 - pinch.x0) / pinch.z0, y = my - h / 2 - z * (pinch.my - h / 2 - pinch.y0) / pinch.z0;
+      let x = mx - w / 2 - z * (pinch.mx - w / 2 - pinch.x0) / pinch.z0, y = my - h / 2 - z * (pinch.my - h / 2 - pinch.y0) / pinch.z0;
+      if (!plPan()) { x = pinch.x0 * z / pinch.z0; y = pinch.y0 * z / pinch.z0; } // zoom only: around the middle (the owner's default)
       P.rec.view = { m: pinch.m, z, x: x / w, y: y / h }; plApplyView(); plZoomLabel(`${Math.round(z * 100)}%`);
       return;
     }
@@ -5769,11 +5840,16 @@ function plGestures() {
     const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
     if (!g.mode && Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx) * 1.3) {
       g.mode = g.x0 < el.clientWidth / 2 ? 'l' : 'r'; g.v0 = g.mode === 'l' ? P.bright : P.vol; g.y1 = e.clientY;
+      g.top = g.mode === 'r' && g.v0 < 100 ? 100 : 200; // like MX: a swipe from below 100% stops there; the next one goes on to 200%
     }
     if (!g.mode) return;
     const k = -(e.clientY - g.y1) / (el.clientHeight * 0.7);
-    if (g.mode === 'l') { P.bright = Math.max(0.1, Math.min(2, g.v0 + k * 2)); plApplyBright(); ls.set('player.bright', P.bright.toFixed(2)); }
-    else { P.vol = Math.round(Math.max(0, Math.min(100, g.v0 + k * 100))); plApplyVol(); ls.set('player.vol2', P.vol); }
+    if (g.mode === 'l') { P.bright = Math.round(Math.max(0, Math.min(100, g.v0 + k * 100))); plApplyBright(); ls.set('player.bright2', P.bright); }
+    else {
+      const raw = g.v0 + k * 100, v = Math.round(Math.max(0, Math.min(g.top, raw)));
+      if (g.top === 100 && raw > 100.5 && !g.hinted) { g.hinted = true; plBoostHint(); }
+      P.vol = v; plApplyVol(); ls.set('player.vol3', P.vol);
+    }
     plSide(g.mode);
   });
   const up = e => {
@@ -5831,8 +5907,7 @@ function plSeekBar() {
   const end = e => {
     if (e.pointerId !== id) return;
     id = null; bar.classList.remove('drag');
-    let t = P.drag; P.drag = null;
-    const m = Math.abs(e.clientX - x0) < 10 && plMarkNear(e.clientX); if (m && t != null) t = Math.max(0, m.t - 1); // a tap on a dot: a second before its card or line
+    const t = P.drag; P.drag = null;
     if (t != null) P.v.currentTime = t;
     plPaintTime(); plShowUI(); plSave();
   };
@@ -5869,13 +5944,13 @@ function plSubsFound() {
 async function plPickSub(id) {
   const P = PL; if (!P) return;
   if (P.rec) { P.rec.sub = id; plSave(true); }
-  if (id === 'off') { P.job++; P.subId = 'off'; P.cues = []; P.cueI = -2; plPanelPaint(); return; }
-  plLoadSub(id);
+  if (id === 'off') { P.job++; P.subId = 'off'; P.cues = []; P.cueI = -2; plPanelPaint(); plCcPaint(); return; }
+  plLoadSub(id); plCcPaint();
 }
 async function plLoadSub(id, auto) {
   const P = PL, s = P.subs.find(x => x.id === id); if (!s || !s.ok) return;
   const job = ++P.job, live = () => PL === P && P.job === job;
-  P.subId = id; P.cues = []; P.cueI = -2; P.subLoad = 0; plPanelPaint();
+  P.subId = id; P.cues = []; P.cueI = -2; P.subLoad = 0; plPanelPaint(); plCcPaint();
   const ck = `${P.key}|${id}`;
   try {
     const kept = await mstore.get('subs', ck);
@@ -6000,6 +6075,24 @@ function plSubStep(dir) {
   plPaintTime(); buzz(8);
 }
 /* the subtitles panel (pick 3A): slides in from the right; Back or a tap on the film closes it */
+/* the CC button (v46): a tap turns the subtitles off or back on (the track last used); holding it opens the subtitles panel */
+function plCcPaint() { const P = PL; if (P) $('.pl-cc', P.el).classList.toggle('off', !P.subId || P.subId === 'off'); }
+function plCcToggle() {
+  const P = PL; if (!P) return;
+  if (P.subId && P.subId !== 'off') { P.ccLast = P.subId; plPickSub('off'); plFlash('c', 'Subtitles off'); }
+  else {
+    const id = (P.ccLast && P.subs.some(s => s.id === P.ccLast && s.ok)) ? P.ccLast : (P.subs.find(s => s.ok) || {}).id;
+    if (!id) { plPanel(); return; } // nothing to turn on: the panel says why
+    plPickSub(id); plFlash('c', 'Subtitles on');
+  }
+  plCcPaint();
+}
+function plCcHold() {
+  const P = PL, b = $('.pl-cc', P.el); let t = 0;
+  b.addEventListener('pointerdown', () => { clearTimeout(t); P.ccHeld = false; t = setTimeout(() => { P.ccHeld = true; if (navigator.vibrate) navigator.vibrate(15); plPanel(); }, 450); });
+  const stop = () => clearTimeout(t);
+  b.addEventListener('pointerup', stop); b.addEventListener('pointercancel', stop); b.addEventListener('pointerleave', stop);
+}
 function plPanel() {
   const P = PL, pn = $('.pl-panel', P.el);
   if (pn.classList.contains('open')) return;
@@ -6104,7 +6197,7 @@ function plNoteOpen() {
   }).join('');
   pn.innerHTML = `<div class="nh">Save for a card<span>${hms(t)}</span></div><div class="nls">${lines}</div>
     <div class="nhint"></div><input class="nq" type="text" placeholder="Add a question (optional)" enterkeyhint="done" autocomplete="off">
-    <div class="nb"><button class="voc" data-p="nsave" data-kind="vocabulary">Vocabulary</button><button class="con" data-p="nsave" data-kind="concept">Concept</button></div>`;
+    <div class="nb"><button class="voc" data-p="nsave" data-kind="vocabulary">Define</button><button class="con" data-p="nsave" data-kind="concept">Explain</button></div>`;
   plNotePaint(); plNotePick(pn);
   $('.nq', pn).addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
   pn.hidden = false; pn.offsetWidth; pn.classList.add('open'); P.el.classList.add('noting'); P.noting = true;
