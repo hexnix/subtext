@@ -407,4 +407,6 @@ python3 tools/app-test/harness.py . --zips tools/app-test/fixtures/test-library.
 
 - **v46 (player):** CC taps subtitles on and off, holding it opens the panel; zoom only, with Zoom and pan in ⋯; Fit / Crop only, the button's icon showing which; two jump buttons under the title instead of the dots (5 s before the next or previous card); tapping a card notice shows its definitions in a pane; volume and brightness like MX Player (stop at 100%, swipe again to 200%); the save panel says Define and Explain.
 
+- **v47:** the player's volume and brightness bars are sized and placed like MX Player's, and the volume bar always spans 0–200% (100% fills half).
+
 Add a line here with every version you ship.
