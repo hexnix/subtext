@@ -716,14 +716,15 @@ h1{font-family:var(--serif);font-weight:400;font-size:var(--fs-title);line-heigh
 .player .iconbtn:active{background:rgba(255,255,255,.12)}
 .pl-unlock{position:absolute;left:calc(14px + var(--sl));bottom:calc(14px + var(--sb));background:rgba(0,0,0,.5)!important}
 /* brightness is swiped on the left and volume on the right (pick 4A); each bar shows on the other side, away from the finger */
-.pl-side{position:absolute;top:50%;transform:translateY(-50%);height:min(220px,54vh);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:12px;color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
-.pl-side.l{right:calc(26px + var(--sr))} .pl-side.r{left:calc(26px + var(--sl))}
-.pl-side{background:rgba(20,21,24,.55);border-radius:16px;padding:10px 8px 10px;width:40px;box-sizing:border-box}
+/* sized from the owner's MX Player recording (v46): a 48 × 179 px pill 56 px in from the edge, the % on top, a 103 px bar, the speaker */
+.pl-side{position:absolute;top:50%;transform:translateY(-50%);height:179px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-size:12px;color:#fff;font-variant-numeric:tabular-nums;pointer-events:none}
+.pl-side.l{right:calc(56px + var(--sr))} .pl-side.r{left:calc(56px + var(--sl))}
+.pl-side{background:rgba(20,21,24,.55);border-radius:24px;padding:13px 0 14px;width:48px;box-sizing:border-box}
 .pl-side span{font-size:11px;font-weight:500}
 .pl-side svg{width:16px;height:16px}
-.pl-side .tr{flex:1;width:3px;border-radius:2px;background:rgba(255,255,255,.28);position:relative}
+.pl-side .tr{flex:none;height:103px;width:3px;border-radius:2px;background:rgba(255,255,255,.35);position:relative}
 .pl-side .tr i{position:absolute;left:0;right:0;bottom:0;background:var(--gold);border-radius:2px}
-.pl-side.boost .tr i{background:linear-gradient(0deg,var(--gold) 0,var(--gold) 50%,#FF9F1C 72%,#FF3B30 100%);background-position:bottom;background-repeat:no-repeat}
+.pl-side.r .tr i{background:linear-gradient(0deg,var(--gold) 0,var(--gold) 50%,#FF9F1C 72%,#FF3B30 100%);background-position:bottom;background-repeat:no-repeat}
 .pl-flash{position:absolute;top:50%;transform:translateY(-50%);padding:10px 16px;border-radius:999px;background:rgba(0,0,0,.55);font-size:14px;color:#fff;pointer-events:none;animation:fadein .15s}
 .pl-flash.l{left:18%} .pl-flash.r{right:18%} .pl-flash.c{left:50%;transform:translate(-50%,-50%)}
 .pl-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 40px;text-align:center;color:var(--muted)}
@@ -5793,8 +5794,9 @@ function plZoomLabel(text) {
 function plSide(which) {
   const P = PL, s = $(`.pl-side.${which}`, P.el), val = which === 'l' ? P.bright : P.vol, boost = which === 'r' && val > 100;
   s.hidden = false; clearTimeout(s.t);
-  const i = $('i', s); i.style.height = (boost ? val / 2 : val) + '%';
-  i.style.backgroundSize = boost ? `100% ${(20000 / val).toFixed(1)}%` : ''; // the colours belong to the whole bar, not the filled part
+  // the volume bar always runs 0 to 200%, like MX's: 100% fills half of it; the colours belong to the whole bar, not the filled part
+  const i = $('i', s), h = which === 'r' ? val / 2 : val; i.style.height = h + '%';
+  i.style.backgroundSize = which === 'r' && val > 0 ? `100% ${(10000 / h).toFixed(1)}%` : '';
   s.classList.toggle('boost', boost);
   $('span', s).textContent = Math.round(val) + '%';
   s.t = setTimeout(() => { s.hidden = true; }, 900);
